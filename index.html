@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>LBTU Sporta centrs | Oficiāla rezervācija</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { background: #f8fafc; }
+    body, h1, h2, h3, h4, p, span, div, button, li, td, th { color: #1e293b; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -12px rgba(0,0,0,0.1); transition: all 0.2s ease; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
+    .rule-list li { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-gray-100 antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    // ======================== LBTU OFICIĀLIE DATI NO VISIEM PIELIKUMIEM ========================
+    // 1. PELDBASEINS (45 min) – cenas ar PVN (1.pielikums)
+    const poolPrices = {
+      singleAdult: 10.00,
+      singleSeniorStudentStaff: 6.00,
+      singleChildDisabled: 0.00,
+      familyLarge: 19.00,
+      family1adult1child: 16.00,
+      family1adult2children: 16.00,
+      family2adults1child: 19.00,
+      family2adults2children: 25.00,
+      subscription8: 64.00,
+      laneRentDay: 38.00,
+      laneRentEveningWeekend: 57.00
+    };
+    
+    // 2. SPORTA ZĀLES (Raiņa ielā-1) (2.pielikums)
+    const gymPrices = {
+      largeGymHour: 42.00,
+      smallGymHour: 20.00,
+      individualBadmintonTableTennis_month: 15.00,
+      aerobicsHour: 20.00,
+      gymRoomHour: 20.00
+    };
+    
+    // 3. SPORTA KOMPLEKSS (Tērvetes 91D)
+    const complexPrices = {
+      upTo4: 23.00,
+      from4to30: 32.00,
+      over30: 39.00,
+      wrestlingHall: 12.00
+    };
+    
+    // 4. AUTOSTĀVLAUKS (Raiņa ielā 1)
+    const parkingPrices = {
+      upTo3h: 0.00,
+      upTo24h: 3.00,
+      monthly: 25.00
+    };
+    
+    // 5. BASEINA PUBLISKAIS DARBA LAIKS (no 2026.g. 1.maija)
+    const poolSchedule = {
+      monday: "8:15 – 15:00 / 19:30 – 21:00",
+      tuesday: "8:15 – 15:00 / 19:30 – 21:00",
+      wednesday: "9:15 – 15:00 / 19:30 – 21:00",
+      thursday: "8:15 – 14:15 / 19:30 – 21:00",
+      friday: "8:15 – 15:00 / 19:30 – 21:00",
+      saturday: "12:30 – pēc pieraksta (jāpiesaka līdz 12:00)",
+      sunday: "SLĒGTS"
+    };
+    
+    // Sporta objekti (bez emojis)
+    const facilitiesData = [
+      { id: 1, name: "Peldbaseins", type: "Peldēšana", capacity: "25 cilvēki", basePrice: 10.00, icon: "fa-swimmer", imageBg: "linear-gradient(135deg, #0ea5e9, #3b82f6)", sportType: "swimming", officialNote: "45 minūtes ūdenī. Vienreizējs 10€ / 6€ pensionāriem, skolēniem, LBTU studentiem. Abonements 8x 64€. Ģimenes cenām skatīt cenrādi." },
+      { id: 2, name: "Lielā sporta zāle", type: "Treniņi / Basketbols", capacity: "40 cilvēki", basePrice: 42.00, icon: "fa-basketball-ball", imageBg: "linear-gradient(135deg, #a855f7, #7c3aed)", sportType: "gym", officialNote: "Lielās zāles īre 42€/h. Mazā zāle 20€/h. Aerobikas un trenažieru zāle 20€/h." },
+      { id: 3, name: "Mazā sporta zāle", type: "Badmintons / Galda teniss", capacity: "20 cilvēki", basePrice: 20.00, icon: "fa-table-tennis", imageBg: "linear-gradient(135deg, #f59e0b, #d97706)", sportType: "gym", officialNote: "Mazās zāles īre 20€/h. Individuālās nodarbības badmintonā/galda tenisā 15€/mēnesī." },
+      { id: 4, name: "Trenažieru zāle", type: "Spēka treniņi", capacity: "20 cilvēki", basePrice: 20.00, icon: "fa-dumbbell", imageBg: "linear-gradient(135deg, #10b981, #059669)", sportType: "gym", officialNote: "Trenažieru zāles īre 20€/stunda." },
+      { id: 5, name: "Aerobikas zāle", type: "Aerobika / Fitness", capacity: "25 cilvēki", basePrice: 20.00, icon: "fa-heartbeat", imageBg: "linear-gradient(135deg, #ec489a, #be185d)", sportType: "gym", officialNote: "Aerobikas zāles īre 20€/stunda." },
+      { id: 6, name: "Sporta komplekss (Tērvetes 91D)", type: "Grupu nodarbības", capacity: "30+ cilvēki", basePrice: 32.00, icon: "fa-users", imageBg: "linear-gradient(135deg, #ef4444, #dc2626)", sportType: "football", officialNote: "Nodarbības 4-30 cilvēkiem 32€/h; virs 30 cilv. 39€/h; līdz 4 cilv. 23€/h." },
+      { id: 7, name: "Cīņas sporta zāle", type: "Cīņas sports", capacity: "20 cilvēki", basePrice: 12.00, icon: "fa-fist-raised", imageBg: "linear-gradient(135deg, #8b5cf6, #6d28d9)", sportType: "gym", officialNote: "Cīņas sporta zāles īre 12€/stunda." },
+      { id: 8, name: "Baseina celiņa īre (uzņēmumiem)", type: "Komerciāla noma", capacity: "6 pieaug. / 8 bērni", basePrice: 38.00, icon: "fa-water", imageBg: "linear-gradient(135deg, #06b6d4, #0891b2)", sportType: "swimming", officialNote: "Darba dienās 8:15-17:15: 38€; vakarā un brīvdienās: 57€. Minimāli uz 1 mēnesi." }
+    ];
+    
+    // Laika slotu ģenerators
+    const generateTimeSlots = (facilityId) => {
+      const slots = [];
+      if (facilityId === 1) {
+        for (let hour = 8; hour <= 20; hour++) {
+          for (let minute of [0, 45]) {
+            if (hour === 20 && minute === 45) continue;
+            const timeLabel = `${hour.toString().padStart(2,'0')}:${minute.toString().padStart(2,'0')}`;
+            let status = 'available';
+            if (timeLabel === '13:00' || timeLabel === '17:45') status = 'booked';
+            slots.push({ id: timeLabel, time: timeLabel, status, duration: 45 });
+          }
+        }
+      } else {
+        for (let hour = 9; hour <= 20; hour++) {
+          const timeLabel = `${hour.toString().padStart(2,'0')}:00`;
+          let status = 'available';
+          if (timeLabel === '13:00' || timeLabel === '17:00') status = 'booked';
+          slots.push({ id: timeLabel, time: timeLabel, status, duration: 60 });
+        }
+      }
+      return slots;
+    };
+    
+    const getPriceForFacility = (facility, selectedSlot) => {
+      if (facility.id === 1) return 10.00;
+      if (facility.id === 2) return 42.00;
+      if (facility.id === 3 || facility.id === 4 || facility.id === 5) return 20.00;
+      if (facility.id === 6) return 32.00;
+      if (facility.id === 7) return 12.00;
+      if (facility.id === 8) {
+        if (selectedSlot) { const hour = parseInt(selectedSlot.time.split(':')[0]); return hour < 17 ? 38.00 : 57.00; }
+        return 38.00;
+      }
+      return facility.basePrice;
+    };
+    
+    // Navigācijas komponente
+    const NavBar = ({ activeTab, setActiveTab, mobileMenuOpen, setMobileMenuOpen }) => {
+      const navItems = [
+        { id: 'facilities', label: 'Iespējas' },
+        { id: 'dashboard', label: 'Panelis' },
+        { id: 'pricing', label: 'Cenrādis' },
+        { id: 'info', label: 'Noteikumi' }
+      ];
+      return (
+        <nav className="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setActiveTab('facilities')}>
+                <img 
+                  src="https://cloud-1de12d.becdn.net/media/original/877667af231d144047db347d9ade334d/2565306-1-02.png" 
+                  alt="LBTU Sporta centrs logo" 
+                  className="h-12 w-auto object-contain"
+                />
+                <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">Sporta Centrs</span>
+              </div>
+              <div className="hidden md:flex space-x-1">
+                {navItems.map(item => (
+                  <button key={item.id} onClick={() => setActiveTab(item.id)} className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${activeTab === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-700 hover:bg-gray-100'}`}>
+                    <i className={`fas ${item.icon}`}></i><span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="md:hidden">
+                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded-lg text-slate-700 hover:bg-gray-100">
+                  <i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i>
+                </button>
+              </div>
+            </div>
+            {mobileMenuOpen && (
+              <div className="md:hidden pb-3 space-y-1">
+                {navItems.map(item => (
+                  <button key={item.id} onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }} className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-3 text-slate-700 ${activeTab === item.id ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'}`}>
+                    <i className={`fas ${item.icon} w-5`}></i><span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </nav>
+      );
+    };
+    
+    // Iespēju karte
+    const FacilityCard = ({ facility, onBookNow }) => (
+      <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-200 card-hover">
+        <div className="h-32 w-full relative flex items-center justify-center" style={{ background: facility.imageBg }}>
+          <i className={`fas ${facility.icon} text-5xl text-white drop-shadow-lg`}></i>
+        </div>
+        <div className="p-5">
+          <h3 className="text-xl font-bold text-slate-800">{facility.name}</h3>
+          <div className="flex items-center gap-3 text-sm text-slate-600 mt-2">
+            <span><i className="fas fa-users mr-1"></i>{facility.capacity}</span>
+            <span><i className="fas fa-clock mr-1"></i>{facility.basePrice}€/st</span>
+          </div>
+          <p className="text-xs text-slate-500 mt-2 line-clamp-3">{facility.officialNote}</p>
+          <button onClick={() => onBookNow(facility)} className="mt-4 w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow"><i className="fas fa-calendar-plus"></i>Rezervēt</button>
+        </div>
+      </div>
+    );
+    
+    // Pilns cenrādis
+    const PricingPanel = () => (
+      <div className="space-y-6">
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-swimmer text-blue-500"></i> Peldbaseins (45 minūtes ūdenī) – cenas ar PVN</h2>
+          <div className="grid md:grid-cols-2 gap-3 text-sm">
+            <div className="flex justify-between border-b py-2"><span>Vienreizējs apmeklējums (pieaugušais)</span><span className="font-bold">10.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Pensionāriem, skolēniem (no 16 g.), LBTU studentiem/darbiniekiem</span><span className="font-bold">6.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Bērni invalīdi līdz 18 g. ar pavadoni</span><span className="font-bold">Bezmaksas</span></div>
+            <div className="flex justify-between border-b py-2"><span>Daudzbērnu ģimene (2 pieaug. + 3+ bērni)</span><span className="font-bold">19.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>1 pieaugušais + 1 bērns (līdz 16 g.)</span><span className="font-bold">16.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>1 pieaugušais + 2 bērni</span><span className="font-bold">16.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>2 pieaugušie + 1 bērns</span><span className="font-bold">19.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>2 pieaugušie + 2 bērni</span><span className="font-bold">25.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Abonements 8 apmeklējumiem (8 nedēļu laikā)</span><span className="font-bold">64.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Viena celiņa īre (darba dienās 8:15-17:15, uzņēmumiem)</span><span className="font-bold">38.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Viena celiņa īre (vakars/brīvdienas 17:15-21:00)</span><span className="font-bold">57.00 €</span></div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-dumbbell text-purple-500"></i> Sporta zāles (Raiņa ielā-1) – cenas ar PVN</h2>
+          <div className="grid md:grid-cols-2 gap-3 text-sm">
+            <div className="flex justify-between border-b py-2"><span>Lielās sporta zāles īre (1 stunda)</span><span className="font-bold">42.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Mazās zāles īre (1 stunda)</span><span className="font-bold">20.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Individuālās nodarbības badmintonā, galda tenisā (mēnesī)</span><span className="font-bold">15.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Aerobikas zāles īre (1 stunda)</span><span className="font-bold">20.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Trenažieru zāles īre (1 stunda)</span><span className="font-bold">20.00 €</span></div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-building text-red-500"></i> Sporta komplekss (Tērvetes 91D)</h2>
+          <div className="grid md:grid-cols-2 gap-3 text-sm">
+            <div className="flex justify-between border-b py-2"><span>Nodarbības līdz 4 cilvēkiem (1 stunda)</span><span className="font-bold">23.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Nodarbības 4-30 cilvēkiem (1 stunda)</span><span className="font-bold">32.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Nodarbības vairāk par 30 cilvēkiem (1 stunda)</span><span className="font-bold">39.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Cīņas sporta zāle (1 stunda)</span><span className="font-bold">12.00 €</span></div>
+          </div>
+        </div>
+        
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-parking text-amber-500"></i> Auto stāvlaukums (Raiņa ielā 1, Jelgavā)</h2>
+          <div className="bg-amber-50 p-3 rounded-lg mb-4 text-sm">Apmeklētājiem līdz 3 stundām bez maksas, jānovieto stāvēšanas pulkstenis redzamā vietā.</div>
+          <div className="grid md:grid-cols-3 gap-4 text-sm">
+            <div className="flex justify-between border-b py-2"><span>Līdz 3 stundām</span><span className="font-bold">Bezmaksas</span></div>
+            <div className="flex justify-between border-b py-2"><span>Līdz 24 stundām</span><span className="font-bold">3.00 €</span></div>
+            <div className="flex justify-between border-b py-2"><span>Mēneša atļauja (30 dienas)</span><span className="font-bold">25.00 €</span></div>
+          </div>
+          <p className="text-xs text-slate-500 mt-3">Atļauju var iegādāties Sporta centra 2.stāvā pie administratora (darba dienās 9:00–20:00).</p>
+        </div>
+        
+        <div className="bg-blue-50 rounded-xl p-4 text-sm border border-blue-200">
+          <i className="fas fa-gavel text-blue-600 mr-2"></i> Cenrādis apstiprināts ar Latvijas Biozinātņu un tehnoloģiju universitātes 15.09.2022. rektora rīkojumu Nr. 4.3.-13/76. Spēkā no 2022. gada 1. novembra.
+        </div>
+      </div>
+    );
+    
+    // Informācijas panelis (noteikumi un darba laiks)
+    const InfoPanel = () => (
+      <div className="space-y-6">
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-clock text-blue-500"></i> Peldbaseina publiskā apmeklējuma laiks (no 2026. gada 1. maija)</h2>
+          <div className="grid md:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-xl">
+            <div><span className="font-bold">Pirmdiena:</span> {poolSchedule.monday}</div>
+            <div><span className="font-bold">Otrdiena:</span> {poolSchedule.tuesday}</div>
+            <div><span className="font-bold">Trešdiena:</span> {poolSchedule.wednesday}</div>
+            <div><span className="font-bold">Ceturtdiena:</span> {poolSchedule.thursday}</div>
+            <div><span className="font-bold">Piektdiena:</span> {poolSchedule.friday}</div>
+            <div><span className="font-bold">Sestdiena:</span> {poolSchedule.saturday}</div>
+            <div><span className="font-bold">Svētdiena:</span> {poolSchedule.sunday}</div>
+          </div>
+          <p className="text-sm text-amber-700 mt-3 bg-amber-50 p-2 rounded-lg">Publiskās peldēšanas laiks jāpiesaka iepriekš zvanot pa tālruni 25427282</p>
+        </div>
+        
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-file-alt text-emerald-600"></i> Sporta centra iekšējās kārtības noteikumi</h2>
+          <ul className="list-disc pl-5 space-y-2 text-sm rule-list">
+            <li>Sporta centra apmeklētāji personīgi atbild par savu veselības stāvokli un drošības noteikumu ievērošanu.</li>
+            <li>Bērni līdz 14 gadu vecumam drīkst atrasties tikai vecāku vai pilngadīga pavadoņa uzraudzībā.</li>
+            <li>Peldbaseina un sporta zāļu telpās atļauts ieiet tikai tīros maiņas apavos; virsdrēbes atstāt garderobē.</li>
+            <li><span className="font-bold">Stingri aizliegts:</span> ienest stikla traukus, atrasties alkohola/narkotiku reibumā, smēķēt, bojāt inventāru, lēkt ūdenī no baseina malām, spļaut ūdenī vai uz grīdas (sods līdz 30 €).</li>
+            <li>Personām ar ādas slimībām, atklātām brūcēm, konjuktivītu vai citām lipīgām saslimšanām peldbaseinu apmeklēt aizliegts.</li>
+            <li>Par atstātajām vērtslietām ģērbtuvēs administrācija atbildību nenes.</li>
+            <li>Nodarbību laikā ar cieņu jāizturas vienam pret otru un jāievēro instruktoru norādījumi.</li>
+          </ul>
+        </div>
+        
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-xl font-bold mb-3"><i className="fas fa-car-side text-amber-600"></i> Autostāvvietas papildnoteikumi</h2>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            <li>Atļauja jānovieto uz priekšējā paneļa redzamā vietā.</li>
+            <li>Stāvvieta nav paredzēta kravas automašīnām, autobusiem, traktoriem.</li>
+            <li>Aizliegts mazgāt vai tīrīt automašīnu stāvlaukuma teritorijā.</li>
+            <li>Par šo noteikumu neievērošanu pašvaldības policijai ir tiesības uzlikt naudas sodu.</li>
+          </ul>
+        </div>
+      </div>
+    );
+    
+    // Filtri
+    const Filters = ({ sportFilter, setSportFilter, priceRange, setPriceRange }) => {
+      const sportTypes = ["all", "swimming", "gym", "football"];
+      const displayNames = { all:"Visi", swimming:"Peldēšana", gym:"Treniņu zāles", football:"Komplekss" };
+      return (
+        <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+          <div className="flex flex-wrap gap-3 items-center justify-between">
+            <div className="flex flex-wrap gap-2">
+              {sportTypes.map(sport => (
+                <button key={sport} onClick={() => setSportFilter(sport)} className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${sportFilter === sport ? 'bg-blue-600 text-white' : 'bg-gray-100 text-slate-700 hover:bg-gray-200'}`}>{displayNames[sport]}</button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full">
+              <i className="fas fa-euro-sign text-emerald-500"></i>
+              <input type="range" min="0" max="100" step="5" value={priceRange} onChange={(e) => setPriceRange(parseInt(e.target.value))} className="w-28 accent-emerald-500" />
+              <span className="text-sm font-mono">≤ {priceRange}€</span>
+            </div>
+          </div>
+        </div>
+      );
+    };
+    
+    // Lietotāja panelis
+    const Dashboard = ({ upcomingBookings, totalHours, onCancelBooking }) => (
+      <div className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-5">
+          <div className="bg-white rounded-2xl p-5 border-l-4 border-emerald-500 shadow"><p className="text-slate-600">Nākamā rezervācija</p><p className="text-2xl font-bold">{upcomingBookings.length > 0 ? upcomingBookings[0].facilityName : "Nav gaidāmo"}</p></div>
+          <div className="bg-white rounded-2xl p-5 border-l-4 border-blue-500 shadow"><p className="text-slate-600">Aktīvās rezervācijas</p><p className="text-2xl font-bold">{totalHours}</p></div>
+        </div>
+        <div className="bg-white rounded-2xl p-5 border shadow">
+          <h3 className="text-xl font-semibold mb-4">Manas rezervācijas</h3>
+          {upcomingBookings.length === 0 && <p className="text-center py-8 text-slate-500">Nav rezervāciju. Izpēti iespējas!</p>}
+          {upcomingBookings.length > 0 && (
+            <div className="overflow-x-auto"><table className="min-w-full text-sm"><thead className="border-b"><tr><th className="text-left py-2">Objekts</th><th>Datums</th><th>Laiks</th><th>Cena</th><th></th></tr></thead><tbody>
+              {upcomingBookings.map(b => (<tr key={b.id} className="border-b"><td className="py-2 font-medium">{b.facilityName}</td><td>{b.date}</td><td>{b.slot}</td><td>{b.price.toFixed(2)} €</td><td><button onClick={() => onCancelBooking(b.id)} className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs"><i className="fas fa-trash"></i> Atcelt</button></td></tr>))}
+            </tbody></table></div>
+          )}
+        </div>
+      </div>
+    );
+    
+    // Rezervācijas lapa
+    const BookingPage = ({ facility, onConfirmBooking, onBack }) => {
+      const [selectedDate, setSelectedDate] = React.useState(new Date().toISOString().slice(0,10));
+      const [timeSlots, setTimeSlots] = React.useState(generateTimeSlots(facility.id));
+      const [selectedSlot, setSelectedSlot] = React.useState(null);
+      React.useEffect(() => { setTimeSlots(generateTimeSlots(facility.id)); setSelectedSlot(null); }, [selectedDate, facility.id]);
+      const handleSlotSelect = (slot) => { if(slot.status !== 'booked') setSelectedSlot(slot.id === selectedSlot?.id ? null : slot); };
+      const totalCost = selectedSlot ? getPriceForFacility(facility, selectedSlot) : 0;
+      const handleConfirm = () => { if(selectedSlot) { onConfirmBooking({ facilityId: facility.id, facilityName: facility.name, date: selectedDate, slot: selectedSlot.time, price: totalCost }); setSelectedSlot(null); } };
+      return (
+        <div className="max-w-5xl mx-auto">
+          <button onClick={onBack} className="mb-4 text-blue-600 flex items-center gap-1"><i className="fas fa-arrow-left"></i> Atpakaļ uz iespējām</button>
+          <div className="bg-white rounded-2xl p-6 border shadow-lg">
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex-1">
+                <h2 className="text-2xl font-bold">{facility.name} <span className="text-sm bg-gray-100 px-2 py-0.5 rounded-full">{facility.basePrice}€/st (LBTU cena)</span></h2>
+                <p className="text-xs text-slate-500 mt-1">{facility.officialNote}</p>
+                <div className="mt-4"><label className="block text-slate-700 mb-2"><i className="fas fa-calendar-alt"></i> Izvēlieties datumu</label><input type="date" value={selectedDate} min={new Date().toISOString().slice(0,10)} onChange={(e) => setSelectedDate(e.target.value)} className="border rounded-xl px-4 py-2 w-full sm:w-auto" /></div>
+                <div className="mt-6"><p className="font-semibold">Laika sloti</p><div className="grid grid-cols-4 sm:grid-cols-6 gap-3 mt-3">{timeSlots.map(slot => { let bgClass = 'bg-gray-100'; if(slot.status === 'booked') bgClass = 'bg-gray-300 line-through cursor-not-allowed'; if(selectedSlot?.id === slot.id) bgClass = 'bg-blue-600 text-white'; if(slot.status === 'available' && (!selectedSlot || selectedSlot.id !== slot.id)) bgClass = 'bg-emerald-100 hover:bg-emerald-200 cursor-pointer'; return (<button key={slot.id} disabled={slot.status === 'booked'} onClick={() => handleSlotSelect(slot)} className={`py-2 rounded-xl text-sm font-medium ${bgClass}`}>{slot.time}{slot.duration === 45 ? ' (45min)' : ''}</button>); })}</div></div>
+              </div>
+              <div className="lg:w-80 bg-gray-50 rounded-xl p-5 border"><h3 className="text-xl font-bold border-b pb-2">Rezervācijas kopsavilkums</h3><div className="mt-4 space-y-2 text-sm"><p><span className="text-slate-600">Objekts:</span> {facility.name}</p><p><span className="text-slate-600">Datums:</span> {selectedDate}</p><p><span className="text-slate-600">Laiks:</span> {selectedSlot ? selectedSlot.time : '—'}</p><div className="pt-2 mt-2 border-t flex justify-between font-bold"><span>Kopā (EUR ar PVN):</span><span className="text-emerald-600">{totalCost.toFixed(2)} €</span></div></div><button onClick={handleConfirm} disabled={!selectedSlot} className={`mt-5 w-full py-2.5 rounded-xl font-bold ${selectedSlot ? 'bg-emerald-600 text-white' : 'bg-gray-300 cursor-not-allowed'}`}>Apstiprināt rezervāciju</button></div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+    
+    // Hero sadaļa
+    const HeroSection = () => (
+      <div className="relative rounded-2xl overflow-hidden mb-10 bg-gradient-to-r from-blue-600 to-emerald-500 shadow-xl">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10"></div>
+        <div className="relative p-8 md:p-12 text-center"><h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">LBTU Sporta centrs</h1><p className="text-lg text-white/90 max-w-2xl mx-auto">Oficiālie pakalpojumi, cenas un noteikumi – rezervē baseinu, sporta zāles, kompleksu un stāvvietu.</p></div>
+      </div>
+    );
+    
+    // Galvenā aplikācija
+    const App = () => {
+      const [activeTab, setActiveTab] = React.useState('facilities');
+      const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+      const [sportFilter, setSportFilter] = React.useState('all');
+      const [priceRange, setPriceRange] = React.useState(100);
+      const [userBookings, setUserBookings] = React.useState([]);
+      const [bookingFacility, setBookingFacility] = React.useState(null);
+      
+      const upcomingSorted = [...userBookings].filter(b => b.date >= new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date));
+      const totalHours = userBookings.length;
+      const handleBookNow = (facility) => { setBookingFacility(facility); setActiveTab('bookingFlow'); };
+      const handleConfirmBooking = (newBooking) => { setUserBookings(prev => [...prev, { id: Date.now().toString(), ...newBooking }]); setBookingFacility(null); setActiveTab('dashboard'); alert(`Rezervēts: ${newBooking.facilityName} ${newBooking.date} plkst. ${newBooking.slot} - ${newBooking.price.toFixed(2)} € (LBTU oficiālā cena)`); };
+      const handleCancelBooking = (id) => setUserBookings(prev => prev.filter(b => b.id !== id));
+      
+      const filteredFacilities = facilitiesData.filter(f => (sportFilter === 'all' || f.sportType === sportFilter) && f.basePrice <= priceRange);
+      
+      let mainContent;
+      if (activeTab === 'facilities') mainContent = (<><HeroSection /><Filters sportFilter={sportFilter} setSportFilter={setSportFilter} priceRange={priceRange} setPriceRange={setPriceRange} /><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">{filteredFacilities.map(fac => <FacilityCard key={fac.id} facility={fac} onBookNow={handleBookNow} />)}</div></>);
+      else if (activeTab === 'dashboard') mainContent = <Dashboard upcomingBookings={upcomingSorted} totalHours={totalHours} onCancelBooking={handleCancelBooking} />;
+      else if (activeTab === 'pricing') mainContent = <PricingPanel />;
+      else if (activeTab === 'info') mainContent = <InfoPanel />;
+      else if (activeTab === 'bookingFlow' && bookingFacility) mainContent = <BookingPage facility={bookingFacility} onConfirmBooking={handleConfirmBooking} onBack={() => { setBookingFacility(null); setActiveTab('facilities'); }} />;
+      else mainContent = <div className="text-center py-20">Notiek ielāde...</div>;
+      
+      return (<div><NavBar activeTab={activeTab === 'bookingFlow' ? 'facilities' : activeTab} setActiveTab={(tab) => { if(tab !== 'bookingFlow') { setBookingFacility(null); setActiveTab(tab); } }} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} /><main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">{mainContent}</main><footer className="text-center py-6 text-slate-500 text-sm border-t mt-12">© LBTU Sporta centrs – cenrādis apstiprināts ar rektora rīkojumu Nr. 4.3.-13/76, spēkā no 2022. gada 1. novembra. Publiskās peldēšanas laiki no 2026. gada 1. maija.</footer></div>);
+    };
+    
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>
