@@ -391,7 +391,16 @@
       else if (activeTab === 'bookingFlow' && bookingFacility) mainContent = <BookingPage facility={bookingFacility} onConfirmBooking={handleConfirmBooking} onBack={() => { setBookingFacility(null); setActiveTab('facilities'); }} />;
       else mainContent = <div className="text-center py-20">Notiek ielāde...</div>;
       
-      return (<div><NavBar activeTab={activeTab === 'bookingFlow' ? 'facilities' : activeTab} setActiveTab={(tab) => { if(tab !== 'bookingFlow') { setBookingFacility(null); setActiveTab(tab); } }} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} /><main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">{mainContent}</main><footer className="text-center py-6 text-slate-500 text-sm border-t mt-12">© LBTU Sporta centrs – cenrādis apstiprināts ar rektora rīkojumu Nr. 4.3.-13/76, spēkā no 2022. gada 1. novembra. Publiskās peldēšanas laiki no 2026. gada 1. maija.</footer></div>);
+      return (<div><NavBar activeTab={activeTab === 'bookingFlow' ? 'facilities' : activeTab} setActiveTab={(tab) => { if(tab !== 'bookingFlow') { setBookingFacility(null); setActiveTab(tab); } }} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} /><main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">{mainContent}</main>
+      <footer class="text-center py-6 text-slate-500 text-sm border-t mt-12">
+      <span>© 2x200 Developer - Depositary (as of 8 June 2026) 👉</span>
+      <br class="block sm:hidden" />
+      <a href="https://github.com/2x200/LBTU-Sporta-Centrs" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:text-blue-700 underline inline-flex items-center gap-1 mt-2 sm:mt-0 sm:ml-2">
+        <i class="fas fa-external-link-alt text-xs"></i> GitHub.com
+      </a>
+    </footer>
+      
+      </div>);
     };
     
     ReactDOM.createRoot(document.getElementById("root")).render(<App />);
