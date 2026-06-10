@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>LBTU Sporta centrs | QR Rezervācija + Pilns Cenrādis un Noteikumi</title>
+  <title>LBTU Sporta centrs | Oficiālā rezervācija un informācija</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -20,7 +20,6 @@
     ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 10px; }
     .calendar-day { transition: all 0.15s ease; }
     .availability-dot { transition: transform 0.1s ease; }
-    .rule-list li { margin-bottom: 0.5rem; }
     .qr-modal-overlay {
       position: fixed;
       top: 0;
@@ -87,16 +86,39 @@
     };
     
     const poolSchedule = {
-      monday: "8:15 – 15:00 / 19:30 – 21:00",
-      tuesday: "8:15 – 15:00 / 19:30 – 21:00",
-      wednesday: "9:15 – 15:00 / 19:30 – 21:00",
-      thursday: "8:15 – 14:15 / 19:30 – 21:00",
-      friday: "8:15 – 15:00 / 19:30 – 21:00",
-      saturday: "12:30 – pēc pieraksta (jāpiesaka līdz 12:00)",
-      sunday: "SLĒGTS"
+      monday: "8:15 – 21:00",
+      tuesday: "8:15 – 21:00",
+      wednesday: "8:15 – 21:00",
+      thursday: "8:15 – 21:00",
+      friday: "8:15 – 21:00",
+      saturday: "11:15 – 21:00",
+      sunday: "10:00 – 16:00"
     };
     
-    const getOpenStatus = () => { const now = new Date(); const day = now.getDay(); const hours = now.getHours(); const minutes = now.getMinutes(); const currentTimeMinutes = hours * 60 + minutes; if (day === 0) return false; if (day === 6) { const satStart = 12 * 60 + 30; const satEnd = 21 * 60; return (currentTimeMinutes >= satStart && currentTimeMinutes <= satEnd); } if (day >= 1 && day <= 5) { const morningStart = 8 * 60 + 15; const middayEnd = 15 * 60; const eveningStart = 19 * 60 + 30; const closeDay = 21 * 60; return (currentTimeMinutes >= morningStart && currentTimeMinutes < middayEnd) || (currentTimeMinutes >= eveningStart && currentTimeMinutes < closeDay); } return false; };
+    const getOpenStatus = () => { 
+      const now = new Date(); 
+      const day = now.getDay(); 
+      const hours = now.getHours(); 
+      const minutes = now.getMinutes(); 
+      const currentTimeMinutes = hours * 60 + minutes; 
+      if (day === 0) { 
+        const sunStart = 10 * 60;
+        const sunEnd = 16 * 60;
+        return (currentTimeMinutes >= sunStart && currentTimeMinutes <= sunEnd); 
+      }
+      if (day === 6) { 
+        const satStart = 11 * 60 + 15;
+        const satEnd = 21 * 60;
+        return (currentTimeMinutes >= satStart && currentTimeMinutes <= satEnd); 
+      }
+      if (day >= 1 && day <= 5) { 
+        const openStart = 8 * 60 + 15;
+        const closeTime = 21 * 60;
+        return (currentTimeMinutes >= openStart && currentTimeMinutes < closeTime); 
+      }
+      return false; 
+    };
+    
     const getFormattedTime = (date) => date.toLocaleTimeString('lv-LV', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     
     const RealTimeClockWidget = () => {
@@ -110,7 +132,16 @@
       return (<div className="space-y-3"><div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md border border-gray-200 px-5 py-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3"><div className="flex items-center gap-3"><div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl p-2 text-white shadow-md"><i className="fas fa-clock text-xl"></i></div><div><div className="text-xs text-slate-500 uppercase tracking-wide">Pašreizējais laiks</div><div className="text-2xl md:text-3xl font-mono font-bold tracking-tight text-slate-800">{getFormattedTime(currentTime)}</div><div className="text-xs text-slate-500 hidden sm:block">{formattedDate}</div></div></div><div className={`flex items-center gap-2 px-4 py-2 rounded-xl ${isOpen ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}><div className={`w-3 h-3 rounded-full ${isOpen ? 'bg-emerald-500' : 'bg-red-500'}`}></div><div className={`text-base font-bold ${isOpen ? 'text-emerald-700' : 'text-red-700'}`}>{isOpen ? 'Sporta centrs ATVĒRTS' : 'Sporta centrs SLĒGTS'}</div></div></div><div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-md border border-gray-200 px-5 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"><div className="flex items-center gap-3"><div className="bg-gradient-to-br from-sky-400 to-cyan-500 rounded-xl p-2 text-white shadow-md"><i className="fas fa-cloud-sun text-xl"></i></div><div><div className="text-xs text-slate-500 uppercase tracking-wide">Laiks Jelgavā</div>{weatherLoading ? <div className="text-sm text-slate-400">Ielādē...</div> : weather ? <div className="flex items-center gap-2 flex-wrap"><span className="text-2xl font-bold text-slate-800">{weather.temp}°C</span><span className="text-sm text-slate-600 flex items-center gap-1"><i className={`fas ${weather.icon} text-sky-500`}></i> {weather.condition}</span></div> : <div className="text-sm text-slate-500">Laika dati nav pieejami</div>}</div></div>{weather && !weatherLoading && (<div className="flex items-center gap-3 text-xs text-slate-500"><div className="flex items-center gap-1"><i className="fas fa-wind"></i><span>{weather.windSpeed} km/h</span></div></div>)}</div></div>);
     };
     
-    const contactInfo = { address: "Raiņa iela 1, Jelgava, LV-3001", email: "sports@lbtu.lv", actingDirector: { name: "Česlavs Mateikovičs", email: "ceslavs.mateikovics@lbtu.lv" }, manager: { name: "Jānis Slivjuks", phone: "28625432" } };
+    // DETAILED CONTACT INFORMATION (pilnīgs kontaktu panelis)
+    const contactInfo = { 
+      address: "Raiņa iela 1, Jelgava, LV-3001", 
+      email: "sports@lbtu.lv", 
+      phone: "+371 28625432",
+      actingDirector: { name: "Česlavs Mateikovičs", email: "ceslavs.mateikovics@lbtu.lv" }, 
+      manager: { name: "Jānis Slivjuks", phone: "28625432" },
+      bookingPhone: "25427282",
+      workingHours: "P-Pk: 9:00 - 20:00 | S-Sv: 10:00 - 16:00 (administrācija)"
+    };
     
     const facilitiesData = [
       { id: 1, name: "Peldbaseins", type: "Peldēšana", capacity: "25 cilvēki", basePrice: 10.00, icon: "fa-swimmer", imageBg: "linear-gradient(135deg, #0ea5e9, #3b82f6)", sportType: "swimming", officialNote: "45 minūtes ūdenī. Vienreizējs 10€ / 6€ pensionāriem, skolēniem, LBTU studentiem. Abonements 8x 64€. Ģimenes cenām skatīt cenrādi." },
@@ -123,7 +154,24 @@
       { id: 8, name: "Baseina celiņa īre (uzņēmumiem)", type: "Komerciāla noma", capacity: "6 pieaug. / 8 bērni", basePrice: 38.00, icon: "fa-water", imageBg: "linear-gradient(135deg, #06b6d4, #0891b2)", sportType: "swimming", officialNote: "Darba dienās 8:15-17:15: 38€; vakarā un brīvdienās: 57€. Minimāli uz 1 mēnesi." }
     ];
     
-    const getAvailabilityLevel = (dateStr, facilityId) => { let hash = 0; for (let i = 0; i < dateStr.length; i++) hash = ((hash << 5) - hash) + dateStr.charCodeAt(i); hash = (hash * 31 + facilityId) % 100; if (hash < 20) return 0; if (hash < 50) return 1; if (hash < 80) return 2; return 3; };
+    // Random availability simulation
+    const getRandomAvailabilityForDate = (() => {
+      const cache = new Map();
+      return (dateStr, facilityId) => {
+        const key = `${dateStr}|${facilityId}`;
+        if (!cache.has(key)) {
+          const random = Math.random();
+          let level;
+          if (random < 0.15) level = 0;      
+          else if (random < 0.35) level = 1; 
+          else if (random < 0.70) level = 2;
+          else level = 3;                     
+          cache.set(key, level);
+        }
+        return cache.get(key);
+      };
+    })();
+    const getAvailabilityLevel = (dateStr, facilityId) => getRandomAvailabilityForDate(dateStr, facilityId);
     
     const MonthlyCalendar = ({ selectedDate, onSelectDate, facilityId }) => {
       const [currentMonth, setCurrentMonth] = React.useState(new Date(selectedDate));
@@ -141,7 +189,16 @@
       const isPast = (date) => { const today = new Date(); today.setHours(0,0,0,0); return date < today; };
       const getDotsCount = (dateStr) => { if (!(new Date(dateStr).getMonth() === month && new Date(dateStr).getFullYear() === year)) return 0; return getAvailabilityLevel(dateStr, facilityId); };
       const weekdays = ['P', 'O', 'T', 'C', 'P', 'S', 'Sv'];
-      return (<div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-200"><div className="flex justify-between items-center mb-6"><button onClick={() => changeMonth(-1)} className="p-2 rounded-full hover:bg-gray-100 text-slate-600"><i className="fas fa-chevron-left"></i></button><h3 className="text-xl font-bold text-slate-800">{currentMonth.toLocaleDateString('lv-LV', { month: 'long', year: 'numeric' })}</h3><button onClick={() => changeMonth(1)} className="p-2 rounded-full hover:bg-gray-100 text-slate-600"><i className="fas fa-chevron-right"></i></button></div><div className="grid grid-cols-7 gap-1 text-center mb-2">{weekdays.map(day => (<div key={day} className="text-xs font-semibold text-slate-400 uppercase py-2">{day}</div>))}</div><div className="grid grid-cols-7 gap-1">{daysArray.map((day, idx) => { const dateStr = day.dateStr; const dotsCount = getDotsCount(dateStr); const disabled = isPast(day.date) || !day.isCurrentMonth; const isSelectedDay = isSelected(dateStr); return (<button key={idx} onClick={() => { if (!disabled && day.isCurrentMonth) onSelectDate(dateStr); }} disabled={disabled} className={`calendar-day relative p-2 rounded-xl text-center transition-all min-h-[70px] flex flex-col items-center justify-start gap-1 ${disabled ? 'bg-gray-50 text-gray-300 cursor-not-allowed opacity-60' : 'hover:bg-blue-50 cursor-pointer'} ${isSelectedDay && !disabled ? 'bg-blue-100 ring-2 ring-blue-400 shadow-sm' : ''} ${day.isCurrentMonth && !disabled ? 'text-slate-700' : 'text-gray-400'}`}><span className={`text-sm font-medium ${isSelectedDay ? 'text-blue-700 font-bold' : ''}`}>{day.dayNum}</span>{!disabled && day.isCurrentMonth && dotsCount > 0 && (<div className="flex justify-center gap-[3px] mt-1 flex-wrap">{[...Array(dotsCount)].map((_, i) => (<div key={i} className={`availability-dot w-1.5 h-1.5 rounded-full ${dotsCount === 1 ? 'bg-emerald-400' : dotsCount === 2 ? 'bg-emerald-500' : 'bg-emerald-600'} shadow-sm`}></div>))}</div>)}{!disabled && day.isCurrentMonth && dotsCount === 0 && (<div className="text-[10px] text-gray-400 mt-1">-</div>)}</button>); })}</div><div className="flex justify-center gap-6 mt-5 pt-3 border-t text-xs text-slate-500"><div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-400"></div><span>Zema pieej.</span></div><div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500"></div><span>Vidēja</span></div><div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-600"></div><span>Augsta</span></div><div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-gray-300"></div><span>Nav brīvu</span></div></div></div>);
+      return (<div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-200"><div className="flex justify-between items-center mb-6"><button onClick={() => changeMonth(-1)} className="p-2 rounded-full hover:bg-gray-100 text-slate-600"><i className="fas fa-chevron-left"></i></button><h3 className="text-xl font-bold text-slate-800">{currentMonth.toLocaleDateString('lv-LV', { month: 'long', year: 'numeric' })}</h3><button onClick={() => changeMonth(1)} className="p-2 rounded-full hover:bg-gray-100 text-slate-600"><i className="fas fa-chevron-right"></i></button></div><div className="grid grid-cols-7 gap-1 text-center mb-2">{weekdays.map(day => (<div key={day} className="text-xs font-semibold text-slate-400 uppercase py-2">{day}</div>))}</div><div className="grid grid-cols-7 gap-1">{daysArray.map((day, idx) => { const dateStr = day.dateStr; const dotsCount = getDotsCount(dateStr); const disabled = isPast(day.date) || !day.isCurrentMonth; const isSelectedDay = isSelected(dateStr); return (<button key={idx} onClick={() => { if (!disabled && day.isCurrentMonth) onSelectDate(dateStr); }} disabled={disabled} className={`calendar-day relative p-2 rounded-xl text-center transition-all min-h-[70px] flex flex-col items-center justify-start gap-1 ${disabled ? 'bg-gray-50 text-gray-300 cursor-not-allowed opacity-60' : 'hover:bg-blue-50 cursor-pointer'} ${isSelectedDay && !disabled ? 'bg-blue-100 ring-2 ring-blue-400 shadow-sm' : ''} ${day.isCurrentMonth && !disabled ? 'text-slate-700' : 'text-gray-400'}`} title={!disabled && day.isCurrentMonth ? (dotsCount === 0 ? 'Nav brīvu vietu' : dotsCount === 1 ? 'Zema pieejamība' : dotsCount === 2 ? 'Vidēja pieejamība' : 'Augsta pieejamība') : 'Šī diena nav pieejama'}>
+        <span className={`text-sm font-medium ${isSelectedDay ? 'text-blue-700 font-bold' : ''}`}>{day.dayNum}</span>
+        {!disabled && day.isCurrentMonth && dotsCount > 0 && (<div className="flex justify-center gap-[3px] mt-1 flex-wrap">{[...Array(dotsCount)].map((_, i) => (<div key={i} className={`availability-dot w-1.5 h-1.5 rounded-full ${dotsCount === 1 ? 'bg-emerald-400' : dotsCount === 2 ? 'bg-emerald-500' : 'bg-emerald-600'} shadow-sm`}></div>))}</div>)}
+        {!disabled && day.isCurrentMonth && dotsCount === 0 && (<div className="text-[10px] text-gray-400 mt-1">-</div>)}
+      </button>); })}</div><div className="flex justify-center gap-4 mt-5 pt-3 border-t text-xs text-slate-600 flex-wrap">
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-emerald-600"></div><span>Augsta pieejamība</span></div>
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-emerald-500"></div><span>Vidēja pieejamība</span></div>
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-emerald-400"></div><span>Zema pieejamība</span></div>
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-gray-300"></div><span>Nav brīvu vietu</span></div>
+      </div></div>);
     };
     
     const generateTimeSlots = (facilityId, selectedDate, existingBookedSlots = new Set()) => {
@@ -158,44 +215,453 @@
       React.useEffect(() => {
         if (qrContainerRef.current && booking) {
           qrContainerRef.current.innerHTML = "";
-          const payload = JSON.stringify({
-            id: booking.id,
-            facility: booking.facilityName,
-            date: booking.date,
-            time: booking.slot,
-            price: booking.price,
-            timestamp: booking.timestamp,
-            hash: btoa(`${booking.id}-${booking.date}-${booking.slot}-LBTU`)
-          });
+          const payload = JSON.stringify({ id: booking.id, facility: booking.facilityName, date: booking.date, time: booking.slot, price: booking.price, timestamp: booking.timestamp });
           new QRCode(qrContainerRef.current, { text: payload, width: 200, height: 200, colorDark: "#1e293b", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
         }
       }, [booking]);
       return (<div className="qr-modal-overlay" onClick={onClose}><div className="qr-card p-6" onClick={(e) => e.stopPropagation()}><div className="flex justify-between items-center mb-4"><h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><i className="fas fa-qrcode text-emerald-600"></i> Rezervācijas QR kods</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600"><i className="fas fa-times text-2xl"></i></button></div><div className="bg-gray-50 rounded-xl p-4 mb-4"><div className="grid grid-cols-2 gap-2 text-sm"><div className="text-slate-500">Objekts:</div><div className="font-medium">{booking.facilityName}</div><div className="text-slate-500">Datums:</div><div className="font-medium">{booking.date}</div><div className="text-slate-500">Laiks:</div><div className="font-medium">{booking.slot}</div><div className="text-slate-500">Cena:</div><div className="font-medium text-emerald-600">{booking.price.toFixed(2)} €</div></div></div><div className="flex justify-center mb-4"><div ref={qrContainerRef} className="bg-white p-3 rounded-xl shadow-inner border"></div></div><p className="text-xs text-center text-slate-500 mt-2"><i className="fas fa-shield-alt text-emerald-500 mr-1"></i> Uzrādiet šo QR kodu pie ieejas sporta centrā.</p><button onClick={onClose} className="mt-5 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl font-semibold">Aizvērt</button></div></div>);
     };
     
+    const ImportantInfoBlock = () => {
+  const attachments = [
+    { name: "Peldbaseina darba laiks no 01.06.2026.pdf", icon: "fa-file-pdf", color: "text-red-500", size: "248 KB" },
+    { name: "Vasaras apkopes grafiks 2026.pdf", icon: "fa-file-pdf", color: "text-red-500", size: "1.2 MB" },
+    { name: "Cenrāža pielikums - jaunie noteikumi.pdf", icon: "fa-file-pdf", color: "text-red-500", size: "512 KB" },
+    { name: "LBTU Sporta centra noteikumi (2026).docx", icon: "fa-file-word", color: "text-blue-500", size: "892 KB" }
+  ];
+  
+  return (
+    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-8 border-amber-500 rounded-2xl shadow-lg p-6 mb-8 mt-6 transition-all duration-300 hover:shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-start gap-4">
+        <div className="flex-1 space-y-4">
+          <h2 className="text-2xl font-extrabold text-amber-800 tracking-tight flex items-center gap-2">
+            <i className="fas fa-bell text-amber-600"></i> SVARĪGA INFORMĀCIJA
+          </h2>
+          
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="bg-white/70 rounded-xl p-4 border border-amber-200 shadow-sm">
+              <div className="flex items-center gap-2 text-amber-700 font-semibold mb-2">
+                <i className="fas fa-clock"></i> DARBA LAIKA IZMAIŅAS
+              </div>
+              <ul className="text-sm text-slate-700 space-y-1 list-disc pl-5">
+                <li><span className="font-bold">No 19. jūnija līdz 15. augustam</span> baseins piektdienās slēgts plkst. 19:00 (parasti 21:00).</li>
+                <li>
+                  <span className="font-bold">Ūdens aerobikas nodarbības pie treneres I. Ozolas</span> no 19. jūnija notiek pēc grafika: 
+                  Pirmdienās/Piektdienās 11:15–12:00; Otrdienās/Ceturtdienās 20:15–21:00. 
+                  <span className="bg-red-100 text-red-700 px-1 rounded ml-1">12. jūnijā nodarbība nenotiks</span>.
+                </li>
+                <li>Sestdienās un svētdienās biroja telpas apmeklētājiem slēgtas (zvaniet 28625432).</li>
+              </ul>
+            </div>
+            
+            <div className="bg-white/70 rounded-xl p-4 border border-amber-200 shadow-sm">
+              <div className="flex items-center gap-2 text-amber-700 font-semibold mb-2">
+                <i className="fas fa-water"></i> VASARAS BASEINA MAINTENANCE
+              </div>
+              <ul className="text-sm text-slate-700 space-y-1 list-disc pl-5">
+                <li><span className="font-bold">No 2026. gada 1. jūlija līdz 15. jūlijam</span> peldbaseins slēgts ikgadējai tehniskajai apkopei un ūdens maiņai.</li>
+                <li><span className="font-bold">2026. gada 16.–22. jūlijs</span> baseins atvērts tikai sacensību grupām pēc iepriekšēja pieteikuma.</li>
+                <li>No 23. jūlija – publiskā peldēšana pēc pilna grafika.</li>
+              </ul>
+            </div>
+          </div>
+          
+
+        </div>
+      </div>
+    </div>
+  );
+};
+    
+
+// DISCLAIMER BLOCK
+const DemoDisclaimer = () => {
+  const [isVisible, setIsVisible] = React.useState(true);
+  const [mobileView, setMobileView] = React.useState(window.innerWidth < 768);
+  
+  React.useEffect(() => {
+    const handleResize = () => setMobileView(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const handleDismiss = () => {
+    setIsVisible(false);
+    sessionStorage.setItem('disclaimerDismissed', 'true');
+  };
+  
+  React.useEffect(() => {
+    const dismissed = sessionStorage.getItem('disclaimerDismissed');
+    if (dismissed === 'true') {
+      setIsVisible(false);
+    }
+  }, []);
+  
+  if (!isVisible) return null;
+  
+  return (
+    <div className="relative bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 shadow-lg">
+      <div className="absolute inset-0 opacity-10 pointer-events-none" style={{
+        backgroundImage: `repeating-linear-gradient(45deg, #000 0px, #000 2px, transparent 2px, transparent 8px)`
+      }}></div>
+      
+      <div className="max-w-7xl mx-auto px-3 md:px-4 py-2.5 md:py-3">
+        <div className="flex items-center justify-between gap-2 md:gap-4">
+          <div className="flex items-center gap-2 md:gap-3 flex-1">
+            <div className="flex-shrink-0">
+              <div className="bg-white/20 rounded-full p-1.5 md:p-2 animate-pulse">
+                <i className="fas fa-exclamation-triangle text-white text-sm md:text-base"></i>
+              </div>
+            </div>
+            
+            <div className="flex-1">
+              <p className="text-white font-bold text-xs sm:text-sm md:text-base">
+                ⚠️ DEMONSTRĀCIJAS VERSIJA
+              </p>
+              <p className="text-white/80 text-[10px] md:text-xs">
+                Šī ir testa versija demonstrācijas vajadzībām. Reālās rezervācijas netiek veiktas.
+              </p>
+            </div>
+            
+            {!mobileView && (
+              <div className="hidden md:flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
+                <i className="fas fa-code-branch text-white/70 text-xs"></i>
+                <span className="text-white/70 text-xs">Testa vide</span>
+                <i className="fas fa-flask text-white/70 text-xs ml-1"></i>
+              </div>
+            )}
+          </div>
+          
+          <button 
+            onClick={handleDismiss}
+            className="flex-shrink-0 text-white/70 hover:text-white transition-colors p-1 md:p-1.5 rounded-full hover:bg-white/10"
+            aria-label="Aizvērt brīdinājumu"
+          >
+            <i className="fas fa-times text-xs md:text-sm"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div className="h-0.5 bg-white/30 w-full">
+        <div className="h-full bg-white/50 w-full animate-pulse" style={{ width: '100%' }}></div>
+      </div>
+    </div>
+  );
+};
+
+
     const NavBar = ({ activeTab, setActiveTab, mobileMenuOpen, setMobileMenuOpen }) => {
-      const navItems = [{ id: 'facilities', label: 'Iespējas' }, { id: 'dashboard', label: 'Panelis' }, { id: 'pricing', label: 'Cenrādis' }, { id: 'info', label: 'Noteikumi' }, { id: 'contacts', label: 'Kontakti' }];
-      return (<nav className="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="flex justify-between items-center h-16"><div className="flex items-center space-x-2 cursor-pointer" onClick={() => setActiveTab('facilities')}><img src="https://cloud-1de12d.becdn.net/media/original/877667af231d144047db347d9ade334d/2565306-1-02.png" alt="LBTU Sporta centrs logo" className="h-12 w-auto object-contain" /><span className="font-bold text-xl tracking-tight bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">Sporta Centrs</span></div><div className="hidden md:flex space-x-1">{navItems.map(item => (<button key={item.id} onClick={() => setActiveTab(item.id)} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-700 hover:bg-gray-100'}`}>{item.label}</button>))}</div><div className="md:hidden"><button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded-lg text-slate-700"><i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i></button></div></div>{mobileMenuOpen && (<div className="md:hidden pb-3 space-y-1">{navItems.map(item => (<button key={item.id} onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 rounded-lg text-slate-700 hover:bg-gray-100">{item.label}</button>))}</div>)}</div></nav>);
+const navItems = [
+  { id: 'facilities', label: 'Iespējas' }, 
+  { id: 'events', label: 'Kalendārs' }, 
+  { id: 'groupBooking', label: 'Grupu Rezervācija' },
+  { id: 'pricing', label: 'Cenrādis' }, 
+  { id: 'info', label: 'Noteikumi' }, 
+  { id: 'contacts', label: 'Kontakti' },
+  { id: 'dashboard', label: 'Panelis' }
+];
+      return (<nav className="bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50 shadow-sm"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="flex justify-between items-center h-16"><div className="flex items-center space-x-2 cursor-pointer" onClick={() => setActiveTab('facilities')}>
+      <img src="https://cloud-1de12d.becdn.net/media/original/877667af231d144047db347d9ade334d/2565306-1-02.png" alt="LBTU Sporta centrs logo" className="h-12 w-auto object-contain" />
+      <div className="flex flex-col">
+        <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">Sporta Centrs</span>
+        <span className="hidden md:inline-block text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full mt-0.5">Demonstrācijas versija</span>
+      </div>
+    </div><div className="hidden md:flex space-x-1">{navItems.map(item => (<button key={item.id} onClick={() => setActiveTab(item.id)} className={`px-4 py-2 rounded-lg font-medium transition-all ${activeTab === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-slate-700 hover:bg-gray-100'}`}>{item.label}</button>))}</div><div className="md:hidden"><button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded-lg text-slate-700"><i className={`fas ${mobileMenuOpen ? 'fa-times' : 'fa-bars'} text-xl`}></i></button></div></div>{mobileMenuOpen && (<div className="md:hidden pb-3 space-y-1">{navItems.map(item => (<button key={item.id} onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }} className="w-full text-left px-3 py-2 rounded-lg text-slate-700 hover:bg-gray-100">{item.label}</button>))}</div>)}</div></nav>);
     };
     
-    // FULL PRICING PANEL with all original tables
-    const PricingPanel = () => (<div className="space-y-6"><div className="bg-white rounded-2xl p-6 border shadow-md"><h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-swimmer text-blue-500"></i> Peldbaseins (45 minūtes ūdenī) – cenas ar PVN</h2><div className="grid md:grid-cols-2 gap-3 text-sm"><div className="flex justify-between border-b py-2"><span>Vienreizējs apmeklējums (pieaugušais)</span><span className="font-bold">10.00 €</span></div><div className="flex justify-between border-b py-2"><span>Pensionāriem, skolēniem (no 16 g.), LBTU studentiem/darbiniekiem</span><span className="font-bold">6.00 €</span></div><div className="flex justify-between border-b py-2"><span>Bērni invalīdi līdz 18 g. ar pavadoni</span><span className="font-bold">Bezmaksas</span></div><div className="flex justify-between border-b py-2"><span>Daudzbērnu ģimene (2 pieaug. + 3+ bērni)</span><span className="font-bold">19.00 €</span></div><div className="flex justify-between border-b py-2"><span>1 pieaugušais + 1 bērns (līdz 16 g.)</span><span className="font-bold">16.00 €</span></div><div className="flex justify-between border-b py-2"><span>1 pieaugušais + 2 bērni</span><span className="font-bold">16.00 €</span></div><div className="flex justify-between border-b py-2"><span>2 pieaugušie + 1 bērns</span><span className="font-bold">19.00 €</span></div><div className="flex justify-between border-b py-2"><span>2 pieaugušie + 2 bērni</span><span className="font-bold">25.00 €</span></div><div className="flex justify-between border-b py-2"><span>Abonements 8 apmeklējumiem (8 nedēļu laikā)</span><span className="font-bold">64.00 €</span></div><div className="flex justify-between border-b py-2"><span>Viena celiņa īre (darba dienās 8:15-17:15, uzņēmumiem)</span><span className="font-bold">38.00 €</span></div><div className="flex justify-between border-b py-2"><span>Viena celiņa īre (vakars/brīvdienas 17:15-21:00)</span><span className="font-bold">57.00 €</span></div></div></div><div className="bg-white rounded-2xl p-6 border shadow-md"><h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-dumbbell text-purple-500"></i> Sporta zāles (Raiņa ielā-1) – cenas ar PVN</h2><div className="grid md:grid-cols-2 gap-3 text-sm"><div className="flex justify-between border-b py-2"><span>Lielās sporta zāles īre (1 stunda)</span><span className="font-bold">42.00 €</span></div><div className="flex justify-between border-b py-2"><span>Mazās zāles īre (1 stunda)</span><span className="font-bold">20.00 €</span></div><div className="flex justify-between border-b py-2"><span>Individuālās nodarbības badmintonā, galda tenisā (mēnesī)</span><span className="font-bold">15.00 €</span></div><div className="flex justify-between border-b py-2"><span>Aerobikas zāles īre (1 stunda)</span><span className="font-bold">20.00 €</span></div><div className="flex justify-between border-b py-2"><span>Trenažieru zāles īre (1 stunda)</span><span className="font-bold">20.00 €</span></div></div></div><div className="bg-white rounded-2xl p-6 border shadow-md"><h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-building text-red-500"></i> Sporta komplekss (Tērvetes 91D)</h2><div className="grid md:grid-cols-2 gap-3 text-sm"><div className="flex justify-between border-b py-2"><span>Nodarbības līdz 4 cilvēkiem (1 stunda)</span><span className="font-bold">23.00 €</span></div><div className="flex justify-between border-b py-2"><span>Nodarbības 4-30 cilvēkiem (1 stunda)</span><span className="font-bold">32.00 €</span></div><div className="flex justify-between border-b py-2"><span>Nodarbības vairāk par 30 cilvēkiem (1 stunda)</span><span className="font-bold">39.00 €</span></div><div className="flex justify-between border-b py-2"><span>Cīņas sporta zāle (1 stunda)</span><span className="font-bold">12.00 €</span></div></div></div><div className="bg-white rounded-2xl p-6 border shadow-md"><h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-parking text-amber-500"></i> Auto stāvlaukums (Raiņa ielā 1, Jelgavā)</h2><div className="bg-amber-50 p-3 rounded-lg mb-4 text-sm">Apmeklētājiem līdz 3 stundām bez maksas, jānovieto stāvēšanas pulkstenis redzamā vietā.</div><div className="grid md:grid-cols-3 gap-4 text-sm"><div className="flex justify-between border-b py-2"><span>Līdz 3 stundām</span><span className="font-bold">Bezmaksas</span></div><div className="flex justify-between border-b py-2"><span>Līdz 24 stundām</span><span className="font-bold">3.00 €</span></div><div className="flex justify-between border-b py-2"><span>Mēneša atļauja (30 dienas)</span><span className="font-bold">25.00 €</span></div></div><p className="text-xs text-slate-500 mt-3">Atļauju var iegādāties Sporta centra 2.stāvā pie administratora (darba dienās 9:00–20:00).</p></div><div className="bg-blue-50 rounded-xl p-4 text-sm border border-blue-200"><i className="fas fa-gavel text-blue-600 mr-2"></i> Cenrādis apstiprināts ar Latvijas Biozinātņu un tehnoloģiju universitātes 15.09.2022. rektora rīkojumu Nr. 4.3.-13/76. Spēkā no 2022. gada 1. novembra.</div></div>);
+    // DETAILED CONTACTS PANEL - pilnīgs kontaktu panelis ar visu informāciju
+    const ContactsPanel = () => (
+      <div className="space-y-6">
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-2xl font-bold flex items-center gap-2 mb-6"><i className="fas fa-address-card text-blue-500"></i> Kontaktinformācija</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <i className="fas fa-map-marker-alt text-emerald-500 mt-1 w-5"></i>
+                <div><p className="font-semibold text-slate-800">Adrese</p><p className="text-slate-600">{contactInfo.address}</p></div>
+              </div>
+              <div className="flex items-start gap-3">
+                <i className="fas fa-envelope text-emerald-500 mt-1 w-5"></i>
+                <div><p className="font-semibold text-slate-800">E-pasts</p><a href="mailto:sports@lbtu.lv" className="text-blue-600 hover:text-blue-700 hover:underline">{contactInfo.email}</a></div>
+              </div>
+              <div className="flex items-start gap-3">
+                <i className="fas fa-phone-alt text-emerald-500 mt-1 w-5"></i>
+                <div><p className="font-semibold text-slate-800">Tālrunis</p><a href="tel:+37128625432" className="text-blue-600 hover:text-blue-700 hover:underline">{contactInfo.phone}</a></div>
+              </div>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+              <div className="flex items-center gap-2 mb-3"><i className="fas fa-user-tie text-amber-600"></i><p className="font-semibold text-slate-800">Direktora pienākumu izpildītājs</p></div>
+              <p className="text-slate-700 font-medium">{contactInfo.actingDirector.name}</p>
+              <a href="mailto:ceslavs.mateikovics@lbtu.lv" className="text-blue-600 hover:text-blue-700 text-sm hover:underline flex items-center gap-1 mt-1"><i className="fas fa-envelope-open-text text-xs"></i> {contactInfo.actingDirector.email}</a>
+            </div>
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+              <div className="flex items-center gap-2 mb-3"><i className="fas fa-user-cog text-blue-500"></i><p className="font-semibold text-slate-800">Sporta centra pārvaldnieks</p></div>
+              <p className="text-slate-700 font-medium">{contactInfo.manager.name}</p>
+              <div className="flex items-center gap-2 mt-1"><i className="fas fa-phone-alt text-emerald-500 text-sm"></i><a href="tel:+37128625432" className="text-blue-600 hover:text-blue-700 text-sm hover:underline">{contactInfo.manager.phone}</a></div>
+            </div>
+            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+              <div className="flex items-center gap-2 mb-2"><i className="fas fa-clock text-blue-500"></i><p className="font-semibold text-slate-800">Informācija</p></div>
+              <p className="text-sm text-slate-600">Atļauju transporta novietošanai stāvlaukumā var iegādāties Sporta centra 2.stāvā pie administratora darba dienās no plkst. 9:00 līdz 20:00.</p>
+              <p className="text-sm text-slate-600 mt-2">Publiskās peldēšanas laiks jāpiesaka iepriekš zvanot pa tālruni <strong>{contactInfo.bookingPhone}</strong></p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl p-6 border shadow-md">
+          <h2 className="text-xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-map-pin text-red-500"></i> Kartes atrašanās vieta</h2>
+          <div className="aspect-video bg-gray-100 rounded-xl overflow-hidden">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2181.789514879616!2d23.72144567699205!3d56.65232713695286!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46eec11bcfd1f5f5%3A0x4b8e9f5a3c5a5a5a!2sRai%C5%86a%20iela%201%2C%20Jelgava%2C%20LV-3001!5e0!3m2!1sen!2slv!4v1710000000000!5m2!1sen!2slv" width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="LBTU Sporta centra atrašanās vieta" className="w-full h-full"></iframe>
+          </div>
+          <p className="text-sm text-slate-500 mt-3 text-center"><i className="fas fa-location-dot text-emerald-500 mr-1"></i> Raiņa iela 1, Jelgava, LV-3001</p>
+        </div>
+      </div>
+    );
     
-    // FULL INFO PANEL with pool schedule + detailed rules
-    const InfoPanel = () => (<div className="space-y-6"><div className="bg-white rounded-2xl p-6 border shadow-md"><h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-clock text-blue-500"></i> Peldbaseina publiskā apmeklējuma laiks (no 2026. gada 1. maija)</h2><div className="grid md:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-xl"><div><span className="font-bold">Pirmdiena:</span> {poolSchedule.monday}</div><div><span className="font-bold">Otrdiena:</span> {poolSchedule.tuesday}</div><div><span className="font-bold">Trešdiena:</span> {poolSchedule.wednesday}</div><div><span className="font-bold">Ceturtdiena:</span> {poolSchedule.thursday}</div><div><span className="font-bold">Piektdiena:</span> {poolSchedule.friday}</div><div><span className="font-bold">Sestdiena:</span> {poolSchedule.saturday}</div><div><span className="font-bold">Svētdiena:</span> {poolSchedule.sunday}</div></div><p className="text-sm text-amber-700 mt-3 bg-amber-50 p-2 rounded-lg">Publiskās peldēšanas laiks jāpiesaka iepriekš zvanot pa tālruni 25427282</p></div><div className="bg-white rounded-2xl p-6 border shadow-md"><h2 className="text-2xl font-bold flex items-center gap-2 mb-4"><i className="fas fa-file-alt text-emerald-600"></i> Sporta centra iekšējās kārtības noteikumi</h2><ul className="list-disc pl-5 space-y-2 text-sm rule-list"><li>Sporta centra apmeklētāji personīgi atbild par savu veselības stāvokli un drošības noteikumu ievērošanu.</li><li>Bērni līdz 14 gadu vecumam drīkst atrasties tikai vecāku vai pilngadīga pavadoņa uzraudzībā.</li><li>Peldbaseina un sporta zāļu telpās atļauts ieiet tikai tīros maiņas apavos; virsdrēbes atstāt garderobē.</li><li><span className="font-bold">Stingri aizliegts:</span> ienest stikla traukus, atrasties alkohola/narkotiku reibumā, smēķēt, bojāt inventāru, lēkt ūdenī no baseina malām, spļaut ūdenī vai uz grīdas (sods līdz 30 €).</li><li>Personām ar ādas slimībām, atklātām brūcēm, konjuktivītu vai citām lipīgām saslimšanām peldbaseinu apmeklēt aizliegts.</li><li>Par atstātajām vērtslietām ģērbtuvēs administrācija atbildību nenes.</li><li>Nodarbību laikā ar cieņu jāizturas vienam pret otru un jāievēro instruktoru norādījumi.</li></ul></div></div>);
+    // PRICING PANEL
+const PricingPanel = () => {
+  const [activeCategory, setActiveCategory] = React.useState('pool');
+  const [mobileView, setMobileView] = React.useState(window.innerWidth < 768);
+  
+  React.useEffect(() => {
+    const handleResize = () => setMobileView(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const categories = [
+    { id: 'pool', name: 'Peldbaseins', icon: 'fa-swimmer', color: 'blue' },
+    { id: 'gym', name: 'Sporta zāles', icon: 'fa-dumbbell', color: 'purple' },
+    { id: 'complex', name: 'Sporta komplekss', icon: 'fa-building', color: 'red' },
+    { id: 'parking', name: 'Stāvlaukums', icon: 'fa-parking', color: 'amber' }
+  ];
+  
+  const poolPricesList = [
+    { name: "Vienreizējs apmeklējums (pieaugušais)", price: "10.00", suffix: "€", note: null },
+    { name: "Pensionāriem, skolēniem (no 16 g.), LBTU studentiem/darbiniekiem", price: "6.00", suffix: "€", note: null },
+    { name: "Bērni invalīdi līdz 18 g. ar pavadoni", price: "Bezmaksas", suffix: "", note: null },
+    { name: "Daudzbērnu ģimene (2 pieaug. + 3+ bērni)", price: "19.00", suffix: "€", note: null },
+    { name: "1 pieaugušais + 1 bērns (līdz 16 g.)", price: "16.00", suffix: "€", note: null },
+    { name: "1 pieaugušais + 2 bērni", price: "16.00", suffix: "€", note: null },
+    { name: "2 pieaugušie + 1 bērns", price: "19.00", suffix: "€", note: null },
+    { name: "2 pieaugušie + 2 bērni", price: "25.00", suffix: "€", note: null },
+    { name: "Abonements 8 apmeklējumiem (8 nedēļu laikā)", price: "64.00", suffix: "€", note: "8 nedēļu laikā" },
+    { name: "Viena celiņa īre (darba dienās 8:15-17:15)", price: "38.00", suffix: "€", note: "Uzņēmumiem" },
+    { name: "Viena celiņa īre (vakars/brīvdienas 17:15-21:00)", price: "57.00", suffix: "€", note: "Uzņēmumiem" }
+  ];
+  
+  const gymPricesList = [
+    { name: "Lielās sporta zāles īre (1 stunda)", price: "42.00", suffix: "€", note: null },
+    { name: "Mazās zāles īre (1 stunda)", price: "20.00", suffix: "€", note: null },
+    { name: "Individuālās nodarbības badmintonā, galda tenisā", price: "15.00", suffix: "€", note: "Mēnesī" },
+    { name: "Aerobikas zāles īre (1 stunda)", price: "20.00", suffix: "€", note: null },
+    { name: "Trenažieru zāles īre (1 stunda)", price: "20.00", suffix: "€", note: null }
+  ];
+  
+  const complexPricesList = [
+    { name: "Nodarbības līdz 4 cilvēkiem (1 stunda)", price: "23.00", suffix: "€", note: null },
+    { name: "Nodarbības 4-30 cilvēkiem (1 stunda)", price: "32.00", suffix: "€", note: null },
+    { name: "Nodarbības vairāk par 30 cilvēkiem (1 stunda)", price: "39.00", suffix: "€", note: null },
+    { name: "Cīņas sporta zāle (1 stunda)", price: "12.00", suffix: "€", note: null }
+  ];
+  
+  const parkingPricesList = [
+    { name: "Līdz 3 stundām", price: "Bezmaksas", suffix: "", note: "Nepieciešams stāvēšanas pulkstenis" },
+    { name: "Līdz 24 stundām", price: "3.00", suffix: "€", note: null },
+    { name: "Mēneša atļauja (30 dienas)", price: "25.00", suffix: "€", note: "Pieejama pie administratora" }
+  ];
+  
+  const getPriceDisplay = (price, suffix) => {
+    if (price === "Bezmaksas") {
+      return <span className="font-bold text-emerald-600">Bezmaksas</span>;
+    }
+    return (
+      <span className="font-bold text-emerald-600">
+        {suffix === "€" ? "€ " : ""}{price}{suffix === "€" ? "" : suffix}
+      </span>
+    );
+  };
+  
+  const renderPriceList = (items, categoryColor) => (
+    <div className="space-y-2 md:space-y-3">
+      {items.map((item, idx) => (
+        <div 
+          key={idx} 
+          className={`flex flex-col sm:flex-row sm:justify-between sm:items-center py-2 md:py-3 border-b border-gray-100 last:border-0 gap-1 sm:gap-2 ${mobileView ? 'px-1' : ''}`}
+        >
+          <div className="flex-1">
+            <span className="text-sm md:text-base text-slate-700">{item.name}</span>
+            {item.note && (
+              <span className="text-[10px] md:text-xs text-gray-400 ml-0 sm:ml-2 block sm:inline">
+                ({item.note})
+              </span>
+            )}
+          </div>
+          <div className={`text-right ${mobileView ? 'mt-0.5' : ''}`}>
+            {getPriceDisplay(item.price, item.suffix)}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+  
+  const getCategoryColorClass = (categoryId) => {
+    const colors = {
+      pool: 'blue',
+      gym: 'purple',
+      complex: 'red',
+      parking: 'amber'
+    };
+    return colors[categoryId] || 'gray';
+  };
+  
+  const getActiveContent = () => {
+    switch(activeCategory) {
+      case 'pool':
+        return (
+          <div className="space-y-3 md:space-y-4">
+            <div className="flex items-center gap-2 mb-2 md:mb-3">
+              <i className="fas fa-clock text-blue-500 text-sm md:text-base"></i>
+              <span className="text-xs md:text-sm text-gray-500">45 minūtes ūdenī</span>
+            </div>
+            {renderPriceList(poolPricesList, 'blue')}
+          </div>
+        );
+      case 'gym':
+        return renderPriceList(gymPricesList, 'purple');
+      case 'complex':
+        return renderPriceList(complexPricesList, 'red');
+      case 'parking':
+        return (
+          <div className="space-y-3 md:space-y-4">
+            <div className="bg-amber-50 p-2 md:p-3 rounded-lg mb-2 md:mb-3">
+              <p className="text-xs md:text-sm text-amber-700 flex items-start gap-2">
+                <i className="fas fa-info-circle text-amber-500 mt-0.5 text-xs md:text-sm"></i>
+                <span>Apmeklētājiem līdz 3 stundām bez maksas, jānovieto stāvēšanas pulkstenis redzamā vietā.</span>
+              </p>
+            </div>
+            {renderPriceList(parkingPricesList, 'amber')}
+            <p className="text-[10px] md:text-xs text-slate-500 mt-2 md:mt-3 pt-2 border-t border-gray-100">
+              <i className="fas fa-ticket-alt text-amber-500 mr-1"></i>
+              Atļauju var iegādāties Sporta centra 2.stāvā pie administratora (darba dienās 9:00–20:00).
+            </p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+  
+  return (
+    <div className="space-y-4 md:space-y-6">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white">
+        <div className="flex items-center gap-3 md:gap-4">
+          <i className="fas fa-euro-sign text-2xl md:text-4xl"></i>
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold">Cenrādis</h1>
+            <p className="text-emerald-100 text-xs md:text-sm">Aktuālās cenas ar PVN 2026. gadam</p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Category Tabs - Horizontal scroll on mobile */}
+      <div className="overflow-x-auto pb-2 -mx-1 px-1">
+        <div className="flex gap-2 min-w-max">
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-1.5 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition whitespace-nowrap
+                ${activeCategory === cat.id 
+                  ? `bg-${cat.color}-600 text-white shadow-md` 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+            >
+              <i className={`fas ${cat.icon} text-xs md:text-sm`}></i>
+              <span>{cat.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Price List Card */}
+      <div className="bg-white rounded-xl md:rounded-2xl border shadow-md overflow-hidden">
+        {/* Category Header */}
+        <div className={`p-3 md:p-5 border-b bg-gradient-to-r from-${getCategoryColorClass(activeCategory)}-50 to-white`}>
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full bg-${getCategoryColorClass(activeCategory)}-100 flex items-center justify-center`}>
+              <i className={`fas ${categories.find(c => c.id === activeCategory)?.icon} text-${getCategoryColorClass(activeCategory)}-600 text-sm md:text-base`}></i>
+            </div>
+            <h2 className="text-base md:text-xl font-bold text-slate-800">
+              {categories.find(c => c.id === activeCategory)?.name}
+            </h2>
+          </div>
+        </div>
+        
+        {/* Price List Content */}
+        <div className="p-3 md:p-5">
+          {getActiveContent()}
+        </div>
+      </div>
+      
+      {/* Official Note Footer */}
+      <div className="bg-blue-50 rounded-xl p-3 md:p-4 border border-blue-200">
+        <div className="flex items-start gap-2 md:gap-3">
+          <i className="fas fa-gavel text-blue-600 text-sm md:text-base mt-0.5"></i>
+          <div>
+            <p className="text-[11px] md:text-sm text-blue-800">
+              Cenrādis apstiprināts ar Latvijas Biozinātņu un tehnoloģiju universitātes 
+              15.09.2022. rektora rīkojumu Nr. 4.3.-13/76.
+            </p>
+            <p className="text-[10px] md:text-xs text-blue-600 mt-1">
+              Spēkā no 2022. gada 1. novembra
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Additional Info - Family pricing highlight for pool */}
+      {activeCategory === 'pool' && (
+        <div className="bg-emerald-50 rounded-xl p-3 md:p-4 border border-emerald-200">
+          <div className="flex items-start gap-2 md:gap-3">
+            <i className="fas fa-users text-emerald-600 text-sm md:text-base mt-0.5"></i>
+            <div>
+              <p className="font-semibold text-emerald-800 text-sm md:text-base">Ģimenes cenas</p>
+              <p className="text-xs md:text-sm text-emerald-700 mt-1">
+                Ģimenes cenā ietilpst tikai bērni līdz 16 gadu vecumam. 
+                Daudzbērnu ģimenēm (3+ bērni) īpaša cena 19.00 €.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Additional Info - Group booking note */}
+      {activeCategory === 'complex' && (
+        <div className="bg-purple-50 rounded-xl p-3 md:p-4 border border-purple-200">
+          <div className="flex items-start gap-2 md:gap-3">
+            <i className="fas fa-chalkboard-teacher text-purple-600 text-sm md:text-base mt-0.5"></i>
+            <div>
+              <p className="font-semibold text-purple-800 text-sm md:text-base">Grupu rezervācijas</p>
+              <p className="text-xs md:text-sm text-purple-700 mt-1">
+                Lielākām grupām (vairāk par 30 cilvēkiem) lūdzam sazināties ar mūsu administratoru 
+                pa tālruni <a href="tel:+37128625432" className="font-bold underline">28625432</a>, lai vienotos par īpašiem nosacījumiem.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
     
-    const ContactsPanel = () => (<div className="space-y-6"><div className="bg-white rounded-2xl p-6 border shadow-md"><h2 className="text-2xl font-bold flex items-center gap-2 mb-6"><i className="fas fa-address-card text-blue-500"></i> Kontaktinformācija</h2><div className="grid md:grid-cols-2 gap-6"><div className="space-y-4"><div className="flex items-start gap-3"><i className="fas fa-map-marker-alt text-emerald-500 mt-1 w-5"></i><div><p className="font-semibold text-slate-800">Adrese</p><p className="text-slate-600">{contactInfo.address}</p></div></div><div className="flex items-start gap-3"><i className="fas fa-envelope text-emerald-500 mt-1 w-5"></i><div><p className="font-semibold text-slate-800">E-pasts</p><a href="mailto:sports@lbtu.lv" className="text-blue-600 hover:underline">{contactInfo.email}</a></div></div></div><div className="bg-gray-50 rounded-xl p-4 border"><div className="flex items-center gap-2 mb-3"><i className="fas fa-user-tie text-amber-600"></i><p className="font-semibold">Direktora p.i.</p></div><p className="font-medium">{contactInfo.actingDirector.name}</p><a href="mailto:ceslavs.mateikovics@lbtu.lv" className="text-blue-600 text-sm">{contactInfo.actingDirector.email}</a></div><div className="bg-gray-50 rounded-xl p-4 border"><div className="flex items-center gap-2 mb-3"><i className="fas fa-user-cog text-blue-500"></i><p className="font-semibold">Pārvaldnieks</p></div><p className="font-medium">{contactInfo.manager.name}</p><a href="tel:+37128625432" className="text-blue-600 text-sm">{contactInfo.manager.phone}</a></div></div></div><div className="bg-white rounded-2xl p-6 border shadow-md"><h2 className="text-xl font-bold mb-4">Kartes atrašanās vieta</h2><div className="aspect-video bg-gray-100 rounded-xl overflow-hidden"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2181.789514879616!2d23.72144567699205!3d56.65232713695286!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x46eec11bcfd1f5f5%3A0x4b8e9f5a3c5a5a5a!2sRai%C5%86a%20iela%201%2C%20Jelgava%2C%20LV-3001!5e0!3m2!1sen!2slv!4v1710000000000!5m2!1sen!2slv" width="100%" height="100%" style={{ border: 0 }} allowFullScreen="" loading="lazy" title="Karte" className="w-full h-full"></iframe></div></div></div>);
+    const Dashboard = ({ upcomingBookings, totalHours, onCancelBooking, onViewQR }) => (<div className="space-y-6"><div className="grid md:grid-cols-2 gap-5"><div className="bg-white rounded-2xl p-5 border-l-4 border-emerald-500 shadow"><p className="text-slate-600">Nākamā rezervācija</p><p className="text-2xl font-bold">{upcomingBookings.length > 0 ? upcomingBookings[0].facilityName : "Nav gaidāmo"}</p></div><div className="bg-white rounded-2xl p-5 border-l-4 border-blue-500 shadow"><p className="text-slate-600">Aktīvās rezervācijas</p><p className="text-2xl font-bold">{totalHours}</p></div></div><div className="bg-white rounded-2xl p-5 border shadow"><h3 className="text-xl font-semibold mb-4">Manas rezervācijas</h3>{upcomingBookings.length === 0 && <p className="text-center py-8 text-slate-500">Nav rezervāciju.</p>}{upcomingBookings.length > 0 && (<div className="overflow-x-auto"><table className="min-w-full text-sm"><thead className="border-b"><tr><th className="text-left py-2">Objekts</th><th>Datums</th><th>Laiks</th><th>Cena</th><th></th><th></th></tr></thead><tbody>{upcomingBookings.map(b => (<tr key={b.id} className="border-b"><td className="py-2 font-medium">{b.facilityName}</td><td>{b.date}</td><td>{b.slot}</td><td>{b.price.toFixed(2)} €</td><td><button onClick={() => onViewQR(b)} className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded text-xs"><i className="fas fa-qrcode"></i> QR</button></td><td><button onClick={() => onCancelBooking(b.id)} className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs"><i className="fas fa-trash"></i> Atcelt</button></td></tr>))}</tbody></table></div>)}</div></div>);
     
-    const Dashboard = ({ upcomingBookings, totalHours, onCancelBooking, onViewQR }) => (<div className="space-y-6"><div className="grid md:grid-cols-2 gap-5"><div className="bg-white rounded-2xl p-5 border-l-4 border-emerald-500 shadow"><p className="text-slate-600">Nākamā rezervācija</p><p className="text-2xl font-bold">{upcomingBookings.length > 0 ? upcomingBookings[0].facilityName : "Nav gaidāmo"}</p></div><div className="bg-white rounded-2xl p-5 border-l-4 border-blue-500 shadow"><p className="text-slate-600">Aktīvās rezervācijas</p><p className="text-2xl font-bold">{totalHours}</p></div></div><div className="bg-white rounded-2xl p-5 border shadow"><h3 className="text-xl font-semibold mb-4">Manas rezervācijas</h3>{upcomingBookings.length === 0 && <p className="text-center py-8 text-slate-500">Nav rezervāciju.</p>}{upcomingBookings.length > 0 && (<div className="overflow-x-auto"><table className="min-w-full text-sm"><thead className="border-b"><tr><th className="text-left py-2">Objekts</th><th>Datums</th><th>Laiks</th><th>Cena</th><th></th><th></th></tr></thead><tbody>{upcomingBookings.map(b => (<tr key={b.id} className="border-b"><td className="py-2 font-medium">{b.facilityName}</td><td>{b.date}</td><td>{b.slot}</td><td>{b.price.toFixed(2)} €</td><td><button onClick={() => onViewQR(b)} className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded text-xs flex items-center gap-1"><i className="fas fa-qrcode"></i> QR</button></td><td><button onClick={() => onCancelBooking(b.id)} className="bg-red-100 text-red-700 px-2 py-1 rounded text-xs"><i className="fas fa-trash"></i> Atcelt</button></td></tr>))}</tbody></table></div>)}</div></div>);
+    const FacilityCard = ({ facility, onBookNow }) => (<div className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-200 card-hover"><div className="h-32 w-full flex items-center justify-center" style={{ background: facility.imageBg }}><i className={`fas ${facility.icon} text-5xl text-white drop-shadow-lg`}></i></div><div className="p-5"><h3 className="text-xl font-bold text-slate-800">{facility.name}</h3><div className="flex items-center gap-3 text-sm text-slate-600 mt-2"><span><i className="fas fa-users mr-1"></i>{facility.capacity}</span><span><i className="fas fa-clock mr-1"></i>{facility.basePrice}€/st</span></div><p className="text-xs text-slate-500 mt-2 line-clamp-3">{facility.officialNote}</p><button onClick={() => onBookNow(facility)} className="mt-4 w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-sm font-semibold"><i className="fas fa-calendar-plus mr-1"></i>Rezervēt</button></div></div>);
     
     const Filters = ({ sportFilter, setSportFilter, priceRange, setPriceRange }) => {
       const sportTypes = ["all", "swimming", "gym", "football"]; const displayNames = { all:"Visi", swimming:"Peldēšana", gym:"Treniņu zāles", football:"Komplekss" };
       return (<div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm"><div className="flex flex-wrap gap-3 items-center justify-between"><div className="flex flex-wrap gap-2">{sportTypes.map(sport => (<button key={sport} onClick={() => setSportFilter(sport)} className={`px-3 py-1.5 rounded-full text-sm font-medium transition ${sportFilter === sport ? 'bg-blue-600 text-white' : 'bg-gray-100 text-slate-700'}`}>{displayNames[sport]}</button>))}</div><div className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded-full"><i className="fas fa-euro-sign text-emerald-500"></i><input type="range" min="0" max="100" step="5" value={priceRange} onChange={(e) => setPriceRange(parseInt(e.target.value))} className="w-28 accent-emerald-500" /><span className="text-sm font-mono">≤ {priceRange}€</span></div></div></div>);
     };
-    
-    const HeroSection = () => (<div className="relative rounded-2xl overflow-hidden mb-6 bg-gradient-to-r from-blue-600 to-emerald-500 shadow-xl"><div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10"></div><div className="relative p-8 md:p-12 text-center"><h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">LBTU Sporta centrs</h1><p className="text-lg text-white/90 max-w-2xl mx-auto">Oficiālie pakalpojumi, cenas un noteikumi – rezervē baseinu, sporta zāles, kompleksu un stāvvietu.</p></div></div>);
-    
-    const FacilityCard = ({ facility, onBookNow }) => (<div className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-200 card-hover"><div className="h-32 w-full flex items-center justify-center" style={{ background: facility.imageBg }}><i className={`fas ${facility.icon} text-5xl text-white drop-shadow-lg`}></i></div><div className="p-5"><h3 className="text-xl font-bold text-slate-800">{facility.name}</h3><div className="flex items-center gap-3 text-sm text-slate-600 mt-2"><span><i className="fas fa-users mr-1"></i>{facility.capacity}</span><span><i className="fas fa-clock mr-1"></i>{facility.basePrice}€/st</span></div><p className="text-xs text-slate-500 mt-2 line-clamp-3">{facility.officialNote}</p><button onClick={() => onBookNow(facility)} className="mt-4 w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-xl text-sm font-semibold transition flex items-center justify-center gap-2 shadow"><i className="fas fa-calendar-plus"></i>Rezervēt</button></div></div>);
     
     const BookingPage = ({ facility, onConfirmBooking, onBack }) => {
       const [selectedDate, setSelectedDate] = React.useState(new Date().toISOString().slice(0,10));
@@ -205,38 +671,801 @@
       React.useEffect(() => { const slots = generateTimeSlots(facility.id, selectedDate, globalBookedSlots); setTimeSlots(slots); setSelectedSlot(null); }, [selectedDate, facility.id]);
       const totalCost = selectedSlot ? getPriceForFacility(facility, selectedSlot) : 0;
       const handleConfirm = () => { if(selectedSlot) { onConfirmBooking({ facilityId: facility.id, facilityName: facility.name, date: selectedDate, slot: selectedSlot.time, price: totalCost }); setSelectedSlot(null); } };
-      return (<div className="max-w-6xl mx-auto"><button onClick={onBack} className="mb-4 text-blue-600 flex items-center gap-1"><i className="fas fa-arrow-left"></i> Atpakaļ</button><div className="bg-white rounded-2xl p-6 border shadow-lg"><div className="flex flex-col lg:flex-row gap-8"><div className="flex-1"><h2 className="text-2xl font-bold">{facility.name}</h2><p className="text-sm text-slate-500 mt-1 mb-4">{facility.officialNote}</p><MonthlyCalendar selectedDate={selectedDate} onSelectDate={setSelectedDate} facilityId={facility.id} /></div><div className="lg:w-96"><div className="bg-gray-50 rounded-xl p-5 border"><div className="mb-3"><span className="font-bold">Datums:</span><span className="ml-2 bg-blue-100 px-2 py-0.5 rounded-full text-sm">{selectedDate}</span></div><p className="font-semibold mb-2">Pieejamie laiki:</p><div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto p-1">{timeSlots.map(slot => { let bgClass = 'bg-gray-100 text-slate-500'; if(slot.status === 'booked') bgClass = 'bg-gray-300 line-through cursor-not-allowed'; if(selectedSlot?.id === slot.id) bgClass = 'bg-blue-600 text-white'; if(slot.status === 'available' && (!selectedSlot || selectedSlot.id !== slot.id)) bgClass = 'bg-emerald-100 hover:bg-emerald-200 cursor-pointer text-slate-700'; return (<button key={slot.id} disabled={slot.status === 'booked'} onClick={() => { if(slot.status !== 'booked') setSelectedSlot(slot); }} className={`py-2 rounded-xl text-sm font-medium ${bgClass}`}>{slot.time}{slot.duration === 45 ? ' (45\')' : ''}</button>); })}</div><div className="mt-5 pt-3 border-t"><div className="flex justify-between font-bold"><span>Kopā (EUR ar PVN):</span><span className="text-emerald-600">{totalCost.toFixed(2)} €</span></div><button onClick={handleConfirm} disabled={!selectedSlot} className={`mt-4 w-full py-2.5 rounded-xl font-bold ${selectedSlot ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-300 cursor-not-allowed'}`}>Apstiprināt rezervāciju</button></div></div></div></div></div></div>);
+      return (<div className="max-w-6xl mx-auto"><button onClick={onBack} className="mb-4 text-blue-600 flex items-center gap-1"><i className="fas fa-arrow-left"></i> Atpakaļ</button><div className="bg-white rounded-2xl p-6 border shadow-lg"><div className="flex flex-col lg:flex-row gap-8"><div className="flex-1"><h2 className="text-2xl font-bold">{facility.name}</h2><MonthlyCalendar selectedDate={selectedDate} onSelectDate={setSelectedDate} facilityId={facility.id} /></div><div className="lg:w-96"><div className="bg-gray-50 rounded-xl p-5 border"><div><span className="font-bold">Datums:</span><span className="ml-2 bg-blue-100 px-2 py-0.5 rounded-full text-sm">{selectedDate}</span></div><p className="font-semibold mt-3 mb-2">Pieejamie laiki:</p><div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto p-1">{timeSlots.map(slot => { let bgClass = 'bg-gray-100 text-slate-500'; if(slot.status === 'booked') bgClass = 'bg-gray-300 line-through cursor-not-allowed'; if(selectedSlot?.id === slot.id) bgClass = 'bg-blue-600 text-white'; if(slot.status === 'available' && (!selectedSlot || selectedSlot.id !== slot.id)) bgClass = 'bg-emerald-100 hover:bg-emerald-200 cursor-pointer text-slate-700'; return (<button key={slot.id} disabled={slot.status === 'booked'} onClick={() => { if(slot.status !== 'booked') setSelectedSlot(slot); }} className={`py-2 rounded-xl text-sm font-medium ${bgClass}`}>{slot.time}{slot.duration === 45 ? ' (45\')' : ''}</button>); })}</div><div className="mt-5 pt-3 border-t"><div className="flex justify-between font-bold"><span>Kopā (EUR):</span><span className="text-emerald-600">{totalCost.toFixed(2)} €</span></div><button onClick={handleConfirm} disabled={!selectedSlot} className={`mt-4 w-full py-2.5 rounded-xl font-bold ${selectedSlot ? 'bg-emerald-600 text-white hover:bg-emerald-700' : 'bg-gray-300 cursor-not-allowed'}`}>Apstiprināt</button></div></div></div></div></div></div>);
     };
+
+
+// GROUP BOOKING MANAGEMENT COMPONENT - MOBILE OPTIMIZED
+const GroupBookingPanel = () => {
+  const [step, setStep] = React.useState(1);
+  const [mobileView, setMobileView] = React.useState(window.innerWidth < 768);
+  const [formData, setFormData] = React.useState({
+    organization: '',
+    contactPerson: '',
+    phone: '',
+    email: '',
+    participants: 5,
+    facilityId: '',
+    preferredDate: '',
+    preferredTime: '',
+    specialRequests: '',
+    equipment: []
+  });
+  const [showSuccess, setShowSuccess] = React.useState(false);
+  
+  React.useEffect(() => {
+    const handleResize = () => setMobileView(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const facilityOptions = [
+    { id: 1, name: "Peldbaseins", pricePerPerson: "10.00", minGroup: 5, maxGroup: 25 },
+    { id: 2, name: "Lielā sporta zāle", pricePerPerson: "42.00", minGroup: 10, maxGroup: 40 },
+    { id: 6, name: "Sporta komplekss (Tērvetes)", pricePerPerson: "32.00", minGroup: 4, maxGroup: 50 }
+  ];
+  
+  const equipmentOptions = [
+    { id: 'balls', name: 'Bumbas', price: 0 },
+    { id: 'rackets', name: 'Raketes', price: 5 },
+    { id: 'mats', name: 'Vingrošanas paklāji', price: 10 },
+    { id: 'lifejackets', name: 'Peldvestes', price: 8 },
+    { id: 'trainer', name: 'Trenera pakalpojumi', price: 25 }
+  ];
+  
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === 'checkbox') {
+      if (checked) {
+        setFormData(prev => ({ ...prev, equipment: [...prev.equipment, value] }));
+      } else {
+        setFormData(prev => ({ ...prev, equipment: prev.equipment.filter(item => item !== value) }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+  };
+  
+  const selectedFacility = facilityOptions.find(f => f.id == formData.facilityId);
+  const totalPrice = selectedFacility 
+    ? (selectedFacility.pricePerPerson * formData.participants) + (formData.equipment.length * 5)
+    : 0;
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowSuccess(true);
+    setTimeout(() => {
+      setShowSuccess(false);
+      setStep(1);
+      setFormData({
+        organization: '', contactPerson: '', phone: '', email: '',
+        participants: 5, facilityId: '', preferredDate: '', preferredTime: '',
+        specialRequests: '', equipment: []
+      });
+    }, 3000);
+  };
+  
+  // Step indicator component
+  const StepIndicator = () => (
+    <div className="flex items-center justify-between max-w-xs md:max-w-md mx-auto px-2 md:px-4">
+      {[1, 2, 3].map((s) => (
+        <div key={s} className="flex flex-col items-center">
+          <div 
+            className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center font-bold text-sm md:text-base transition-all 
+              ${step >= s ? 'bg-purple-600 text-white shadow-md' : 'bg-gray-200 text-gray-500'}`}
+          >
+            {s}
+          </div>
+          <span className="text-[10px] md:text-xs mt-1 text-gray-500">
+            {s === 1 ? 'Info' : s === 2 ? 'Priekšmets' : 'Pabeigt'}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+  
+  return (
+    <div className="space-y-4 md:space-y-6">
+      {/* Success Message */}
+      {showSuccess && (
+        <div className="bg-emerald-100 border-l-4 border-emerald-600 text-emerald-800 p-3 md:p-5 rounded-xl shadow-md animate-pulse">
+          <div className="flex items-center gap-2 md:gap-3">
+            <i className="fas fa-check-circle text-emerald-600 text-xl md:text-2xl"></i>
+            <div>
+              <p className="font-bold text-sm md:text-lg">Pieteikums nosūtīts veiksmīgi!</p>
+              <p className="text-xs md:text-sm">Mūsu menedžers sazināsies ar Jums 24 stundu laikā.</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white">
+        <div className="flex items-center gap-3 md:gap-4">
+          <i className="fas fa-users text-2xl md:text-4xl"></i>
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold">Grupu rezervācijas</h1>
+            <p className="text-purple-100 text-xs md:text-sm">Īpašas cenas un pielāgoti risinājumi komandām, skolām un uzņēmumiem</p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Steps Indicator */}
+      <StepIndicator />
+      
+      {/* Form Container */}
+      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 border shadow-md">
+        <form onSubmit={handleSubmit}>
+          {/* Step 1: Contact Information */}
+          {step === 1 && (
+            <div className="space-y-4 md:space-y-5">
+              <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2">
+                <i className="fas fa-address-card text-purple-500 text-base md:text-lg"></i>
+                Kontaktinformācija
+              </h2>
+              
+              <div className="space-y-3 md:space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-slate-700">
+                    Organizācija / Skola <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="organization" 
+                    required 
+                    value={formData.organization} 
+                    onChange={handleChange} 
+                    className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition"
+                    placeholder="Piem. LBTU, Jelgavas Valsts ģimnāzija"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-slate-700">
+                    Kontaktpersona <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    name="contactPerson" 
+                    required 
+                    value={formData.contactPerson} 
+                    onChange={handleChange} 
+                    className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition"
+                    placeholder="Vārds Uzvārds"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-slate-700">
+                      Tālrunis <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="tel" 
+                      name="phone" 
+                      required 
+                      value={formData.phone} 
+                      onChange={handleChange} 
+                      className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition"
+                      placeholder="+371 2XXXXXXX"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1 text-slate-700">
+                      E-pasts <span className="text-red-500">*</span>
+                    </label>
+                    <input 
+                      type="email" 
+                      name="email" 
+                      required 
+                      value={formData.email} 
+                      onChange={handleChange} 
+                      className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition"
+                      placeholder="vards@piemers.lv"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-slate-700">
+                    Dalībnieku skaits <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="number" 
+                    name="participants" 
+                    min="2" 
+                    max="100" 
+                    required 
+                    value={formData.participants} 
+                    onChange={handleChange} 
+                    className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition"
+                  />
+                </div>
+              </div>
+              
+              <div className="flex justify-end pt-2">
+                <button 
+                  type="button" 
+                  onClick={() => setStep(2)} 
+                  className="bg-purple-600 text-white px-5 md:px-6 py-2 md:py-2.5 rounded-xl font-semibold text-sm md:text-base hover:bg-purple-700 transition shadow-md flex items-center gap-2"
+                >
+                  Turpināt <i className="fas fa-arrow-right text-xs md:text-sm"></i>
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Step 2: Booking Details */}
+          {step === 2 && (
+            <div className="space-y-4 md:space-y-5">
+              <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2">
+                <i className="fas fa-calendar-check text-purple-500 text-base md:text-lg"></i>
+                Rezervācijas detaļas
+              </h2>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1 text-slate-700">
+                  Izvēlēties objektu <span className="text-red-500">*</span>
+                </label>
+                <select 
+                  name="facilityId" 
+                  required 
+                  value={formData.facilityId} 
+                  onChange={handleChange} 
+                  className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition bg-white"
+                >
+                  <option value="">Izvēlieties...</option>
+                  {facilityOptions.map(f => (
+                    <option key={f.id} value={f.id}>
+                      {f.name} ({f.minGroup}-{f.maxGroup} cilv.) - {f.pricePerPerson}€/pers.
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-slate-700">
+                    Vēlamais datums <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="date" 
+                    name="preferredDate" 
+                    required 
+                    value={formData.preferredDate} 
+                    onChange={handleChange} 
+                    min={new Date().toISOString().slice(0,10)} 
+                    className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-slate-700">
+                    Vēlamais laiks <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="time" 
+                    name="preferredTime" 
+                    required 
+                    value={formData.preferredTime} 
+                    onChange={handleChange} 
+                    className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition"
+                  />
+                </div>
+              </div>
+              
+              {/* Equipment Selection */}
+              <div>
+                <label className="block text-sm font-medium mb-2 text-slate-700">
+                  Papildus inventārs
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {equipmentOptions.map(e => (
+                    <label 
+                      key={e.id} 
+                      className="flex items-center gap-2 p-2 md:p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition"
+                    >
+                      <input 
+                        type="checkbox" 
+                        value={e.id} 
+                        onChange={handleChange} 
+                        className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                      <span className="text-xs md:text-sm flex-1">{e.name}</span>
+                      {e.price > 0 && (
+                        <span className="text-[10px] md:text-xs text-gray-500">+{e.price}€</span>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1 text-slate-700">
+                  Īpašas vēlmes / piezīmes
+                </label>
+                <textarea 
+                  name="specialRequests" 
+                  rows={mobileView ? 3 : 4} 
+                  value={formData.specialRequests} 
+                  onChange={handleChange} 
+                  className="w-full border rounded-xl px-3 md:px-4 py-2 md:py-2.5 text-sm md:text-base focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none transition resize-none"
+                  placeholder="Īpaši pieprasījumi, uztura prasības, pieejamības vajadzības..."
+                ></textarea>
+              </div>
+              
+              <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-2">
+                <button 
+                  type="button" 
+                  onClick={() => setStep(1)} 
+                  className="bg-gray-200 text-gray-700 px-5 md:px-6 py-2 md:py-2.5 rounded-xl font-semibold text-sm md:text-base hover:bg-gray-300 transition flex items-center justify-center gap-2"
+                >
+                  <i className="fas fa-arrow-left text-xs"></i> Atpakaļ
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setStep(3)} 
+                  className="bg-purple-600 text-white px-5 md:px-6 py-2 md:py-2.5 rounded-xl font-semibold text-sm md:text-base hover:bg-purple-700 transition shadow-md flex items-center justify-center gap-2"
+                >
+                  Turpināt <i className="fas fa-arrow-right text-xs"></i>
+                </button>
+              </div>
+            </div>
+          )}
+          
+          {/* Step 3: Preview & Submit */}
+          {step === 3 && (
+            <div className="space-y-4 md:space-y-5">
+              <h2 className="text-lg md:text-xl font-bold text-slate-800 flex items-center gap-2">
+                <i className="fas fa-eye text-purple-500 text-base md:text-lg"></i>
+                Priekšskatījums un apstiprinājums
+              </h2>
+              
+              {/* Summary Card */}
+              <div className="bg-gray-50 rounded-xl p-3 md:p-4 space-y-2 md:space-y-3">
+                <div className="grid grid-cols-1 gap-2 text-sm">
+                  <div className="flex justify-between py-1 border-b border-gray-200">
+                    <span className="text-gray-600">Organizācija:</span>
+                    <span className="font-medium text-right break-words max-w-[60%]">{formData.organization || '-'}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-200">
+                    <span className="text-gray-600">Kontaktpersona:</span>
+                    <span className="font-medium">{formData.contactPerson || '-'}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-200">
+                    <span className="text-gray-600">Tālrunis / E-pasts:</span>
+                    <span className="font-medium text-right break-words max-w-[60%]">{formData.phone} / {formData.email}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-200">
+                    <span className="text-gray-600">Dalībnieki:</span>
+                    <span className="font-medium">{formData.participants}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-200">
+                    <span className="text-gray-600">Objekts:</span>
+                    <span className="font-medium text-right break-words max-w-[60%]">{selectedFacility?.name || '-'}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-200">
+                    <span className="text-gray-600">Datums/Laiks:</span>
+                    <span className="font-medium">{formData.preferredDate || '-'} {formData.preferredTime || '-'}</span>
+                  </div>
+                  {formData.equipment.length > 0 && (
+                    <div className="flex justify-between py-1 border-b border-gray-200">
+                      <span className="text-gray-600">Papildus inventārs:</span>
+                      <span className="font-medium text-right break-words max-w-[60%]">
+                        {formData.equipment.map(e => {
+                          const opt = equipmentOptions.find(o => o.id === e);
+                          return opt?.name;
+                        }).filter(Boolean).join(', ')}
+                      </span>
+                    </div>
+                  )}
+                  {formData.specialRequests && (
+                    <div className="flex justify-between py-1">
+                      <span className="text-gray-600">Piezīmes:</span>
+                      <span className="font-medium text-right break-words max-w-[60%] text-xs">{formData.specialRequests}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Price Summary */}
+              <div className="border-t pt-3 md:pt-4">
+                <div className="flex justify-between font-bold text-base md:text-lg">
+                  <span>Kopējā cena (ar PVN):</span>
+                  <span className="text-emerald-600">{totalPrice.toFixed(2)} €</span>
+                </div>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-1">
+                  <i className="fas fa-info-circle mr-1"></i>
+                  *Cena ir provizoriska. Galīgo cenu apstiprinās mūsu menedžeris pēc pieteikuma saņemšanas.
+                </p>
+              </div>
+              
+              <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-2">
+                <button 
+                  type="button" 
+                  onClick={() => setStep(2)} 
+                  className="bg-gray-200 text-gray-700 px-5 md:px-6 py-2 md:py-2.5 rounded-xl font-semibold text-sm md:text-base hover:bg-gray-300 transition flex items-center justify-center gap-2"
+                >
+                  <i className="fas fa-arrow-left text-xs"></i> Atpakaļ
+                </button>
+                <button 
+                  type="submit" 
+                  className="bg-emerald-600 text-white px-5 md:px-6 py-2 md:py-2.5 rounded-xl font-semibold text-sm md:text-base hover:bg-emerald-700 transition shadow-md flex items-center justify-center gap-2"
+                >
+                  <i className="fas fa-paper-plane text-xs"></i> Nosūtīt pieteikumu
+                </button>
+              </div>
+            </div>
+          )}
+        </form>
+      </div>
+      
+      {/* Help Section */}
+      <div className="bg-purple-50 rounded-xl p-3 md:p-4 border border-purple-200">
+        <div className="flex gap-3">
+          <i className="fas fa-phone-alt text-purple-600 text-lg md:text-xl flex-shrink-0"></i>
+          <div>
+            <p className="font-semibold text-sm md:text-base">Nepieciešama palīdzība?</p>
+            <p className="text-xs md:text-sm text-gray-600 mt-1">
+              Zvaniet mūsu grupu rezervāciju speciālistam pa tālruni 
+              <a href="tel:+37128625432" className="text-purple-700 font-bold ml-1">28625432</a>
+            </p>
+            <p className="text-xs md:text-sm text-gray-600">
+              vai rakstiet uz 
+              <a href="mailto:grupa@sports.lbtu.lv" className="text-purple-700 font-bold ml-1">grupa@sports.lbtu.lv</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// EVENT CALENDAR COMPONENT - MOBILE OPTIMIZED
+const EventCalendar = () => {
+  const [selectedMonth, setSelectedMonth] = React.useState(new Date());
+  const [selectedEvent, setSelectedEvent] = React.useState(null);
+  const [filterType, setFilterType] = React.useState('all');
+  const [mobileView, setMobileView] = React.useState(window.innerWidth < 768);
+  
+  React.useEffect(() => {
+    const handleResize = () => setMobileView(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const events = [
+    { id: 1, title: "Ūdens aerobikas meistarklase", date: "2026-06-15", time: "11:15 - 12:00", location: "Peldbaseins", type: "workshop", description: "Īpaša ūdens aerobikas nodarbība ar treneri I. Ozolu. Ieteicams ūdens apaviem.", price: "5.00€", capacity: "15 cilvēki", instructor: "I. Ozola", image: "fa-water", registrationRequired: true },
+    { id: 2, title: "Basketbola turnīrs", date: "2026-06-20", time: "10:00 - 18:00", location: "Lielā sporta zāle", type: "tournament", description: "Ikdienas basketbola turnīrs LBTU studentiem un darbiniekiem.", price: "30.00€/komanda", capacity: "8 komandas", instructor: "J. Bērziņš", image: "fa-basketball-ball", registrationRequired: true },
+    { id: 3, title: "Jogas nodarbība iesācējiem", date: "2026-06-12", time: "18:00 - 19:30", location: "Aerobikas zāle", type: "workshop", description: "Relaksējoša jogas nodarbība iesācējiem.", price: "7.00€", capacity: "20 cilvēki", instructor: "M. Liepiņa", image: "fa-pray", registrationRequired: true },
+    { id: 4, title: "Volejbola vakars", date: "2026-06-18", time: "19:00 - 21:00", location: "Lielā sporta zāle", type: "fitness", description: "Neformāls volejbola vakars visiem interesentiem.", price: "4.00€", capacity: "30 cilvēki", instructor: "A. Ozols", image: "fa-volleyball-ball", registrationRequired: false },
+    { id: 5, title: "Peldēšanas tehnikas uzlabošana", date: "2026-06-22", time: "09:00 - 10:30", location: "Peldbaseins", type: "workshop", description: "Profesionāla peldēšanas tehnikas nodarbība.", price: "8.00€", capacity: "12 cilvēki", instructor: "U. Kalniņš", image: "fa-swimmer", registrationRequired: true },
+    { id: 6, title: "Spēka treniņu seminārs", date: "2026-06-25", time: "11:00 - 14:00", location: "Trenažieru zāle", type: "workshop", description: "Pareizu treniņu tehniku seminārs.", price: "12.00€", capacity: "20 cilvēki", instructor: "A. Kalniņš", image: "fa-dumbbell", registrationRequired: true },
+    { id: 7, title: "Bērnu peldēšanas diena", date: "2026-06-21", time: "13:00 - 15:00", location: "Peldbaseins", type: "family", description: "Īpaša diena bērniem! Ūdens spēles un peldēšanas pamācības.", price: "5.00€/bērns", capacity: "25 bērni", instructor: "L. Bērziņa", image: "fa-child", registrationRequired: true },
+    { id: 8, title: "Cīņas sporta demonstrācijas", date: "2026-06-28", time: "14:00 - 16:00", location: "Cīņas sporta zāle", type: "demonstration", description: "Profesionālu cīņas sporta meistaru demonstrācijas.", price: "8.00€", capacity: "30 cilvēki", instructor: "M. Petrovs", image: "fa-fist-raised", registrationRequired: true },
+    { id: 9, title: "Vasaras baseina atvēršana", date: "2026-07-23", time: "12:00 - 16:00", location: "Peldbaseins", type: "celebration", description: "Svinam baseina atvēršanu pēc tehniskās apkopes!", price: "Bezmaksas", capacity: "100 cilvēki", instructor: "Administrācija", image: "fa-glass-cheers", registrationRequired: false },
+    { id: 10, title: "Ģimenes peldēšanas diena", date: "2026-07-12", time: "10:00 - 13:00", location: "Peldbaseins", type: "family", description: "Īpašas cenas ģimenēm ar bērniem.", price: "Ģimenes cena 15.00€", capacity: "50 cilvēki", instructor: "I. Ozola", image: "fa-swimmer", registrationRequired: false }
+  ];
+  
+  const getEventTypeColor = (type) => {
+    const colors = {
+      workshop: "bg-blue-100 text-blue-700 border-blue-200",
+      tournament: "bg-red-100 text-red-700 border-red-200",
+      celebration: "bg-yellow-100 text-yellow-700 border-yellow-200",
+      demonstration: "bg-purple-100 text-purple-700 border-purple-200",
+      family: "bg-green-100 text-green-700 border-green-200",
+      fitness: "bg-orange-100 text-orange-700 border-orange-200"
+    };
+    return colors[type] || "bg-gray-100 text-gray-700 border-gray-200";
+  };
+  
+  const getEventTypeName = (type) => {
+    const names = {
+      workshop: "Darbnīca",
+      tournament: "Turnīrs",
+      celebration: "Svinības",
+      demonstration: "Demonstrācija",
+      family: "Ģimenes diena",
+      fitness: "Vingrošana"
+    };
+    return names[type] || type;
+  };
+  
+  const filteredEvents = events.filter(event => filterType === 'all' || event.type === filterType);
+  
+  const getEventsByDate = () => {
+    const eventsByDate = {};
+    filteredEvents.forEach(event => {
+      if (!eventsByDate[event.date]) eventsByDate[event.date] = [];
+      eventsByDate[event.date].push(event);
+    });
+    return eventsByDate;
+  };
+  
+  const eventsByDate = getEventsByDate();
+  
+  const year = selectedMonth.getFullYear();
+  const month = selectedMonth.getMonth();
+  const firstDayOfMonth = new Date(year, month, 1);
+  const startDayOfWeek = firstDayOfMonth.getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevMonthDays = new Date(year, month, 0).getDate();
+  
+  const calendarDays = [];
+  for (let i = startDayOfWeek - 1; i >= 0; i--) {
+    const dayNum = prevMonthDays - i;
+    const date = new Date(year, month - 1, dayNum);
+    calendarDays.push({ date, dateStr: date.toISOString().slice(0,10), isCurrentMonth: false, dayNum });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    calendarDays.push({ date, dateStr: date.toISOString().slice(0,10), isCurrentMonth: true, dayNum: d });
+  }
+  const remaining = 42 - calendarDays.length;
+  for (let i = 1; i <= remaining; i++) {
+    const date = new Date(year, month + 1, i);
+    calendarDays.push({ date, dateStr: date.toISOString().slice(0,10), isCurrentMonth: false, dayNum: i });
+  }
+  
+  const weekdays = mobileView ? ['P', 'O', 'T', 'C', 'P', 'S', 'Sv'] : ['Pirmd.', 'Otrd.', 'Trešd.', 'Ceturtd.', 'Piektd.', 'Sestd.', 'Svētd.'];
+  
+  // Function to format date for display
+  const formatDisplayDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('lv-LV', { day: 'numeric', month: 'short' });
+  };
+  
+  return (
+    <div className="space-y-4 md:space-y-6">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl md:rounded-2xl p-4 md:p-6 text-white">
+        <div className="flex items-center gap-3 md:gap-4">
+          <i className="fas fa-calendar-alt text-2xl md:text-4xl"></i>
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold">Pasākumu kalendārs</h1>
+            <p className="text-pink-100 text-xs md:text-sm">Iepazīsties ar gaidāmajiem pasākumiem sporta centrā</p>
+          </div>
+        </div>
+      </div>
+      
+      {/* Filter Buttons - Horizontal scroll on mobile */}
+      <div className="overflow-x-auto pb-2 -mx-1 px-1">
+        <div className="flex gap-2 min-w-max">
+          <button onClick={() => setFilterType('all')} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-semibold transition whitespace-nowrap ${filterType === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Visi ({events.length})</button>
+          <button onClick={() => setFilterType('workshop')} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-semibold transition whitespace-nowrap ${filterType === 'workshop' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Darbnīcas</button>
+          <button onClick={() => setFilterType('tournament')} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-semibold transition whitespace-nowrap ${filterType === 'tournament' ? 'bg-red-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Turnīri</button>
+          <button onClick={() => setFilterType('family')} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-semibold transition whitespace-nowrap ${filterType === 'family' ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Ģimenes</button>
+          <button onClick={() => setFilterType('fitness')} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-semibold transition whitespace-nowrap ${filterType === 'fitness' ? 'bg-orange-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Fitness</button>
+          <button onClick={() => setFilterType('celebration')} className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-semibold transition whitespace-nowrap ${filterType === 'celebration' ? 'bg-yellow-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>Svinības</button>
+        </div>
+      </div>
+      
+      {/* Month Navigation */}
+      <div className="bg-white rounded-xl md:rounded-2xl p-3 md:p-6 border shadow-md">
+        <div className="flex justify-between items-center mb-4 md:mb-6">
+          <button onClick={() => setSelectedMonth(new Date(year, month - 1, 1))} className="p-2 rounded-full hover:bg-gray-100 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+            <i className="fas fa-chevron-left text-gray-600 text-sm md:text-base"></i>
+          </button>
+          <h2 className="text-lg md:text-2xl font-bold capitalize">{selectedMonth.toLocaleDateString('lv-LV', { month: 'long', year: 'numeric' })}</h2>
+          <button onClick={() => setSelectedMonth(new Date(year, month + 1, 1))} className="p-2 rounded-full hover:bg-gray-100 w-8 h-8 md:w-10 md:h-10 flex items-center justify-center">
+            <i className="fas fa-chevron-right text-gray-600 text-sm md:text-base"></i>
+          </button>
+        </div>
+        
+        {/* Calendar Grid - Responsive */}
+        <div className="grid grid-cols-7 gap-0.5 md:gap-2 text-center mb-2">
+          {weekdays.map(day => (
+            <div key={day} className="font-semibold text-gray-500 text-[10px] md:text-sm py-1 md:py-2">
+              {day}
+            </div>
+          ))}
+        </div>
+        
+        <div className="grid grid-cols-7 gap-0.5 md:gap-2">
+          {calendarDays.map((day, idx) => {
+            const hasEvents = eventsByDate[day.dateStr] && eventsByDate[day.dateStr].length > 0;
+            const dayEvents = hasEvents ? eventsByDate[day.dateStr] : [];
+            const isToday = day.dateStr === new Date().toISOString().slice(0,10);
+            
+            return (
+              <div 
+                key={idx} 
+                className={`min-h-[60px] md:min-h-[100px] p-1 md:p-2 rounded-lg md:rounded-xl border 
+                  ${day.isCurrentMonth ? 'bg-white' : 'bg-gray-50'} 
+                  ${hasEvents ? 'border-pink-300 shadow-sm' : 'border-gray-200'} 
+                  ${isToday && day.isCurrentMonth ? 'ring-2 ring-pink-400' : ''}`}
+              >
+                <span className={`text-xs md:text-sm font-medium ${day.isCurrentMonth ? 'text-gray-700' : 'text-gray-400'} ${isToday ? 'text-pink-600 font-bold' : ''}`}>
+                  {day.dayNum}
+                </span>
+                {hasEvents && !mobileView && (
+                  <div className="mt-1 space-y-0.5 md:space-y-1">
+                    {dayEvents.slice(0, 2).map(event => (
+                      <button 
+                        key={event.id} 
+                        onClick={() => setSelectedEvent(event)} 
+                        className={`w-full text-left text-[10px] md:text-xs p-0.5 md:p-1 rounded ${getEventTypeColor(event.type)} truncate`}
+                      >
+                        {event.title.length > (mobileView ? 8 : 15) ? event.title.slice(0, mobileView ? 8 : 15) + '...' : event.title}
+                      </button>
+                    ))}
+                    {dayEvents.length > 2 && (
+                      <span className="text-[8px] md:text-xs text-gray-500">+{dayEvents.length - 2}</span>
+                    )}
+                  </div>
+                )}
+                {hasEvents && mobileView && dayEvents.length > 0 && (
+                  <div className="mt-0.5">
+                    <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-pink-500 mx-auto"></div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      
+      {/* Upcoming Events List - Mobile Optimized Cards */}
+      <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 border shadow-md">
+        <h2 className="text-lg md:text-xl font-bold mb-3 md:mb-4 flex items-center gap-2">
+          <i className="fas fa-list-ul text-pink-500 text-sm md:text-base"></i> 
+          Gaidāmie pasākumi
+        </h2>
+        <div className="space-y-3 md:space-y-3">
+          {filteredEvents.sort((a,b) => a.date.localeCompare(b.date)).slice(0, mobileView ? 4 : 6).map(event => (
+            <div 
+              key={event.id} 
+              className="p-3 md:p-4 bg-gray-50 rounded-xl hover:shadow-md transition cursor-pointer" 
+              onClick={() => setSelectedEvent(event)}
+            >
+              {/* Mobile optimized layout */}
+              <div className="flex items-start gap-3 md:gap-4">
+                <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 ${getEventTypeColor(event.type)}`}>
+                  <i className={`fas ${event.image} text-base md:text-lg`}></i>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-800 text-sm md:text-base truncate">{event.title}</h3>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                    <p className="text-xs md:text-sm text-gray-500 flex items-center gap-1">
+                      <i className="fas fa-calendar-day text-[10px] md:text-xs"></i>
+                      <span>{formatDisplayDate(event.date)}</span>
+                    </p>
+                    <p className="text-xs md:text-sm text-gray-500 flex items-center gap-1">
+                      <i className="fas fa-clock text-[10px] md:text-xs"></i>
+                      <span>{event.time.split(' - ')[0]}</span>
+                    </p>
+                    <p className="text-xs md:text-sm text-gray-400 flex items-center gap-1 truncate max-w-[120px] md:max-w-none">
+                      <i className="fas fa-map-marker-alt text-[10px] md:text-xs"></i>
+                      <span className="truncate">{event.location}</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <span className={`text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 rounded-full ${getEventTypeColor(event.type)} whitespace-nowrap`}>
+                    {getEventTypeName(event.type)}
+                  </span>
+                  <p className="text-xs md:text-sm font-bold text-emerald-600 mt-1">{event.price}</p>
+                  {event.registrationRequired && (
+                    <p className="text-[9px] md:text-xs text-blue-500 mt-0.5 whitespace-nowrap">
+                      <i className="fas fa-clipboard-list text-[8px] md:text-xs"></i> Reģ.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+          {filteredEvents.length === 0 && (
+            <p className="text-center py-6 md:py-8 text-gray-500 text-sm md:text-base">Nav gaidāmo pasākumu šajā kategorijā.</p>
+          )}
+        </div>
+      </div>
+      
+      {/* Event Modal - Mobile Responsive */}
+      {selectedEvent && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-4" onClick={() => setSelectedEvent(null)}>
+          <div className="bg-white rounded-xl md:rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto p-4 md:p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-start mb-3 md:mb-4">
+              <div className={`px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm ${getEventTypeColor(selectedEvent.type)}`}>
+                {getEventTypeName(selectedEvent.type)}
+              </div>
+              <button onClick={() => setSelectedEvent(null)} className="text-gray-400 hover:text-gray-600 p-1">
+                <i className="fas fa-times text-lg md:text-xl"></i>
+              </button>
+            </div>
+            <h3 className="text-lg md:text-2xl font-bold mb-2 md:mb-3 pr-4">{selectedEvent.title}</h3>
+            
+            {/* Event details grid - mobile optimized */}
+            <div className="space-y-2 text-xs md:text-sm text-gray-600 mb-4 md:mb-5">
+              <div className="flex items-start gap-2">
+                <i className="fas fa-calendar-day w-4 md:w-5 text-pink-500 mt-0.5"></i>
+                <span>{selectedEvent.date}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <i className="fas fa-clock w-4 md:w-5 text-pink-500 mt-0.5"></i>
+                <span>{selectedEvent.time}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <i className="fas fa-map-marker-alt w-4 md:w-5 text-pink-500 mt-0.5"></i>
+                <span>{selectedEvent.location}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <i className="fas fa-user w-4 md:w-5 text-pink-500 mt-0.5"></i>
+                <span>Instruktors: {selectedEvent.instructor}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <i className="fas fa-users w-4 md:w-5 text-pink-500 mt-0.5"></i>
+                <span>Vietu skaits: {selectedEvent.capacity}</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <i className="fas fa-tag w-4 md:w-5 text-pink-500 mt-0.5"></i>
+                <span className="font-bold text-emerald-600">{selectedEvent.price}</span>
+              </div>
+              {selectedEvent.registrationRequired && (
+                <div className="flex items-start gap-2">
+                  <i className="fas fa-info-circle w-4 md:w-5 text-blue-500 mt-0.5"></i>
+                  <span className="text-blue-600 text-xs">Nepieciešama iepriekšēja reģistrācija</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="border-t pt-3 md:pt-4 mb-4 md:mb-5">
+              <p className="text-gray-700 text-sm md:text-base">{selectedEvent.description}</p>
+            </div>
+            
+            <button className="w-full bg-pink-600 hover:bg-pink-700 text-white py-2.5 md:py-3 rounded-xl font-semibold transition text-sm md:text-base">
+              <i className="fas fa-ticket-alt mr-2"></i> Pieteikties pasākumam
+            </button>
+            <button onClick={() => setSelectedEvent(null)} className="w-full mt-2 text-gray-500 text-xs md:text-sm py-2">
+              Aizvērt
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+    
+    const HeroSection = () => (<div className="relative rounded-2xl overflow-hidden mb-6 bg-gradient-to-r from-blue-600 to-emerald-500 shadow-xl"><div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=2070&q=80')] bg-cover bg-center opacity-10"></div><div className="relative p-8 md:p-12 text-center"><h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">LBTU Sporta centrs</h1><p className="text-lg text-white/90 max-w-2xl mx-auto">Oficiālie pakalpojumi, cenas un svarīgi paziņojumi</p></div></div>);
     
     const App = () => {
-      const [activeTab, setActiveTab] = React.useState('facilities');
-      const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-      const [sportFilter, setSportFilter] = React.useState('all');
-      const [priceRange, setPriceRange] = React.useState(100);
-      const [userBookings, setUserBookings] = React.useState([]);
-      const [bookingFacility, setBookingFacility] = React.useState(null);
-      const [qrBooking, setQrBooking] = React.useState(null);
+  const [activeTab, setActiveTab] = React.useState('facilities');
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [sportFilter, setSportFilter] = React.useState('all');
+  const [priceRange, setPriceRange] = React.useState(100);
+  const [userBookings, setUserBookings] = React.useState([]);
+  const [bookingFacility, setBookingFacility] = React.useState(null);
+  const [qrBooking, setQrBooking] = React.useState(null);
+  
+  const upcomingSorted = [...userBookings].filter(b => b.date >= new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date));
+  const totalHours = userBookings.length;
+  const handleBookNow = (facility) => { setBookingFacility(facility); setActiveTab('bookingFlow'); };
+  const handleConfirmBooking = (newBooking) => { const bookingWithTimestamp = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...newBooking }; setUserBookings(prev => [...prev, bookingWithTimestamp]); setBookingFacility(null); setActiveTab('dashboard'); alert(`Rezervēts: ${newBooking.facilityName} (${newBooking.date} ${newBooking.slot}) - ${newBooking.price.toFixed(2)} €.`); };
+  const handleCancelBooking = (id) => setUserBookings(prev => prev.filter(b => b.id !== id));
+  const handleViewQR = (booking) => setQrBooking(booking);
+  const filteredFacilities = facilitiesData.filter(f => (sportFilter === 'all' || f.sportType === sportFilter) && f.basePrice <= priceRange);
+  
+  let mainContent;
+  if (activeTab === 'facilities') mainContent = (<><HeroSection /><RealTimeClockWidget /><ImportantInfoBlock /><Filters sportFilter={sportFilter} setSportFilter={setSportFilter} priceRange={priceRange} setPriceRange={setPriceRange} /><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">{filteredFacilities.map(fac => <FacilityCard key={fac.id} facility={fac} onBookNow={handleBookNow} />)}</div></>);
+  else if (activeTab === 'dashboard') mainContent = <Dashboard upcomingBookings={upcomingSorted} totalHours={totalHours} onCancelBooking={handleCancelBooking} onViewQR={handleViewQR} />;
+  else if (activeTab === 'groupBooking') mainContent = <GroupBookingPanel />;
+  else if (activeTab === 'events') mainContent = <EventCalendar />;
+  else if (activeTab === 'pricing') mainContent = <PricingPanel />;
+  else if (activeTab === 'info') mainContent = <InfoPanel />;
+  else if (activeTab === 'contacts') mainContent = <ContactsPanel />;
+  else if (activeTab === 'bookingFlow' && bookingFacility) mainContent = <BookingPage facility={bookingFacility} onConfirmBooking={handleConfirmBooking} onBack={() => { setBookingFacility(null); setActiveTab('facilities'); }} />;
+  else mainContent = <div>Ielāde...</div>;
+
+  return (
+    <div>
+      <DemoDisclaimer />
+      <NavBar activeTab={activeTab === 'bookingFlow' ? 'facilities' : activeTab} setActiveTab={(tab) => { if(tab !== 'bookingFlow') { setBookingFacility(null); setActiveTab(tab); } }} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} />
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">{mainContent}</main>
+      <footer className="text-center py-6 text-slate-500 text-sm border-t mt-12">© 2x200 Developer - Depositary (as of 8 June 2026) <a href="https://github.com/2x200/LBTU-Sporta-Centrs" target="_blank" className="text-blue-500 hover:underline">GitHub.com</a></footer>
+      {qrBooking && <QRModal booking={qrBooking} onClose={() => setQrBooking(null)} />}
+    </div>
+  );
+};
       
-      const upcomingSorted = [...userBookings].filter(b => b.date >= new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date));
-      const totalHours = userBookings.length;
-      const handleBookNow = (facility) => { setBookingFacility(facility); setActiveTab('bookingFlow'); };
-      const handleConfirmBooking = (newBooking) => { const bookingWithTimestamp = { id: Date.now().toString(), timestamp: new Date().toISOString(), ...newBooking }; setUserBookings(prev => [...prev, bookingWithTimestamp]); setBookingFacility(null); setActiveTab('dashboard'); alert(`Rezervēts: ${newBooking.facilityName} (${newBooking.date} ${newBooking.slot}) - ${newBooking.price.toFixed(2)} €. QR kods pieejams panelī.`); };
-      const handleCancelBooking = (id) => setUserBookings(prev => prev.filter(b => b.id !== id));
-      const handleViewQR = (booking) => setQrBooking(booking);
-      const filteredFacilities = facilitiesData.filter(f => (sportFilter === 'all' || f.sportType === sportFilter) && f.basePrice <= priceRange);
-      
-      let mainContent;
-      if (activeTab === 'facilities') mainContent = (<><HeroSection /><RealTimeClockWidget /><Filters sportFilter={sportFilter} setSportFilter={setSportFilter} priceRange={priceRange} setPriceRange={setPriceRange} /><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">{filteredFacilities.map(fac => <FacilityCard key={fac.id} facility={fac} onBookNow={handleBookNow} />)}</div></>);
-      else if (activeTab === 'dashboard') mainContent = <Dashboard upcomingBookings={upcomingSorted} totalHours={totalHours} onCancelBooking={handleCancelBooking} onViewQR={handleViewQR} />;
-      else if (activeTab === 'pricing') mainContent = <PricingPanel />;
-      else if (activeTab === 'info') mainContent = <InfoPanel />;
-      else if (activeTab === 'contacts') mainContent = <ContactsPanel />;
-      else if (activeTab === 'bookingFlow' && bookingFacility) mainContent = <BookingPage facility={bookingFacility} onConfirmBooking={handleConfirmBooking} onBack={() => { setBookingFacility(null); setActiveTab('facilities'); }} />;
-      else mainContent = <div className="text-center py-20">Notiek ielāde...</div>;
-      
-      return (<div><NavBar activeTab={activeTab === 'bookingFlow' ? 'facilities' : activeTab} setActiveTab={(tab) => { if(tab !== 'bookingFlow') { setBookingFacility(null); setActiveTab(tab); } }} mobileMenuOpen={mobileMenuOpen} setMobileMenuOpen={setMobileMenuOpen} /><main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">{mainContent}</main><footer className="text-center py-6 text-slate-500 text-sm border-t mt-12"><span>© 2x200 Developer - Depositary (as of 8 June 2026) 👉</span><br className="block sm:hidden" /><a href="https://github.com/2x200/LBTU-Sporta-Centrs" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline inline-flex items-center gap-1 mt-2 sm:mt-0 sm:ml-2"><i className="fas fa-external-link-alt text-xs"></i>GitHub.com</a></footer>{qrBooking && <QRModal booking={qrBooking} onClose={() => setQrBooking(null)} />}</div>);
-    };
-    
+
     ReactDOM.createRoot(document.getElementById("root")).render(<App />);
   </script>
 </body>
