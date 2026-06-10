@@ -274,7 +274,7 @@
 };
     
 
-// DISCLAIMER BLOCK
+// DISCLAIMER BLOCK - "Testa vide" removed
 const DemoDisclaimer = () => {
   const [isVisible, setIsVisible] = React.useState(true);
   const [mobileView, setMobileView] = React.useState(window.innerWidth < 768);
@@ -323,13 +323,7 @@ const DemoDisclaimer = () => {
               </p>
             </div>
             
-            {!mobileView && (
-              <div className="hidden md:flex items-center gap-2 bg-white/10 rounded-full px-3 py-1">
-                <i className="fas fa-code-branch text-white/70 text-xs"></i>
-                <span className="text-white/70 text-xs">Testa vide</span>
-                <i className="fas fa-flask text-white/70 text-xs ml-1"></i>
-              </div>
-            )}
+            {/* "Testa vide" section removed */}
           </div>
           
           <button 
@@ -415,6 +409,51 @@ const navItems = [
         </div>
       </div>
     );
+
+
+    // INFO PANEL (NOTEIKUMI) 
+const InfoPanel = () => (
+  <div className="space-y-6">
+    <div className="bg-white rounded-2xl p-6 border shadow-md">
+      <h2 className="text-2xl font-bold flex items-center gap-2 mb-4">
+        <i className="fas fa-clock text-blue-500"></i> 
+        Peldbaseina publiskā apmeklējuma laiks (no 2026. gada 1. maija)
+      </h2>
+      <div className="grid md:grid-cols-2 gap-3 text-sm bg-gray-50 p-4 rounded-xl">
+        <div><span className="font-bold">Pirmdiena:</span> 8:15 – 15:00 / 19:30 – 21:00</div>
+        <div><span className="font-bold">Otrdiena:</span> 8:15 – 15:00 / 19:30 – 21:00</div>
+        <div><span className="font-bold">Trešdiena:</span> 9:15 – 15:00 / 19:30 – 21:00</div>
+        <div><span className="font-bold">Ceturtdiena:</span> 8:15 – 14:15 / 19:30 – 21:00</div>
+        <div><span className="font-bold">Piektdiena:</span> 8:15 – 15:00 / 19:30 – 21:00</div>
+        <div><span className="font-bold">Sestdiena:</span> 12:30 – pēc pieraksta (jāpiesaka līdz 12:00)</div>
+        <div><span className="font-bold">Svētdiena:</span> SLĒGTS</div>
+      </div>
+      <p className="text-sm text-amber-700 mt-3 bg-amber-50 p-2 rounded-lg">
+        <i className="fas fa-phone-alt mr-2"></i>
+        Publiskās peldēšanas laiks jāpiesaka iepriekš zvanot pa tālruni <strong>25427282</strong>
+      </p>
+    </div>
+
+    <div className="bg-white rounded-2xl p-6 border shadow-md">
+      <h2 className="text-2xl font-bold flex items-center gap-2 mb-4">
+        <i className="fas fa-file-alt text-emerald-600"></i> 
+        Sporta centra iekšējās kārtības noteikumi
+      </h2>
+      <ul className="list-disc pl-5 space-y-2 text-sm">
+        <li>Sporta centra apmeklētāji personīgi atbild par savu veselības stāvokli un drošības noteikumu ievērošanu.</li>
+        <li>Bērni līdz 14 gadu vecumam drīkst atrasties tikai vecāku vai pilngadīga pavadoņa uzraudzībā.</li>
+        <li>Peldbaseina un sporta zāļu telpās atļauts ieiet tikai tīros maiņas apavos; virsdrēbes atstāt garderobē.</li>
+        <li>
+          <span className="font-bold">Stingri aizliegts:</span> ienest stikla traukus, atrasties alkohola/narkotiku reibumā, smēķēt, bojāt inventāru, lēkt ūdenī no baseina malām, spļaut ūdenī vai uz grīdas 
+          <span className="text-red-600"> (sods līdz 30 €)</span>.
+        </li>
+        <li>Personām ar ādas slimībām, atklātām brūcēm, konjuktivītu vai citām lipīgām saslimšanām peldbaseinu apmeklēt aizliegts.</li>
+        <li>Par atstātajām vērtslietām ģērbtuvēs administrācija atbildību nenes.</li>
+        <li>Nodarbību laikā ar cieņu jāizturas vienam pret otru un jāievēro instruktoru norādījumi.</li>
+      </ul>
+    </div>
+  </div>
+);
     
     // PRICING PANEL
 const PricingPanel = () => {
