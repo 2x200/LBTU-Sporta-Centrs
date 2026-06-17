@@ -52,10 +52,10 @@
 <link rel="dns-prefetch" href="https://maps.google.com">
 
 
-  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.0/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     * { font-family: 'Inter', sans-serif; }
     body { background: #f8fafc; }
@@ -260,11 +260,45 @@
       React.useEffect(() => {
         if (qrContainerRef.current && booking) {
           qrContainerRef.current.innerHTML = "";
-          const payload = JSON.stringify({ id: booking.id, facility: booking.facilityName, date: booking.date, time: booking.slot, price: booking.price, timestamp: booking.timestamp });
-          new QRCode(qrContainerRef.current, { text: payload, width: 200, height: 200, colorDark: "#1e293b", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+          try {
+            if (typeof QRCode !== 'undefined') {
+              const payload = JSON.stringify({ 
+                id: booking.id, 
+                facility: booking.facilityName, 
+                date: booking.date, 
+                time: booking.slot, 
+                price: booking.price, 
+                timestamp: booking.timestamp 
+              });
+              new QRCode(qrContainerRef.current, { 
+                text: payload, 
+                width: 200, 
+                height: 200, 
+                colorDark: "#1e293b", 
+                colorLight: "#ffffff", 
+                correctLevel: QRCode.CorrectLevel.M 
+              });
+            } else {
+              qrContainerRef.current.innerHTML = `
+                <div class="text-center p-4">
+                  <i class="fas fa-qrcode text-6xl text-gray-400 mb-2"></i>
+                  <p class="text-sm text-gray-500">QR kods nav pieejams</p>
+                  <p class="text-xs text-gray-400 mt-1">Rezervācijas ID: ${booking.id}</p>
+                </div>
+              `;
+            }
+          } catch (error) {
+            console.error("QR generation failed:", error);
+            qrContainerRef.current.innerHTML = `
+              <div class="text-center p-4">
+                <i class="fas fa-exclamation-triangle text-red-400 text-4xl mb-2"></i>
+                <p class="text-sm text-red-500">QR kodu nevarēja ģenerēt</p>
+              </div>
+            `;
+          }
         }
       }, [booking]);
-      return (<div className="qr-modal-overlay" onClick={onClose}><div className="qr-card p-6" onClick={(e) => e.stopPropagation()}><div className="flex justify-between items-center mb-4"><h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><i className="fas fa-qrcode text-emerald-600"></i> Rezervācijas QR kods</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600"><i className="fas fa-times text-2xl"></i></button></div><div className="bg-gray-50 rounded-xl p-4 mb-4"><div className="grid grid-cols-2 gap-2 text-sm"><div className="text-slate-500">Objekts:</div><div className="font-medium">{booking.facilityName}</div><div className="text-slate-500">Datums:</div><div className="font-medium">{booking.date}</div><div className="text-slate-500">Laiks:</div><div className="font-medium">{booking.slot}</div><div className="text-slate-500">Cena:</div><div className="font-medium text-emerald-600">{booking.price.toFixed(2)} €</div></div></div><div className="flex justify-center mb-4"><div ref={qrContainerRef} className="bg-white p-3 rounded-xl shadow-inner border"></div></div><p className="text-xs text-center text-slate-500 mt-2"><i className="fas fa-shield-alt text-emerald-500 mr-1"></i> Uzrādiet šo QR kodu pie ieejas sporta centrā.</p><button onClick={onClose} className="mt-5 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl font-semibold">Aizvērt</button></div></div>);
+      return (<div className="qr-modal-overlay" onClick={onClose}><div className="qr-card p-6" onClick={(e) => e.stopPropagation()}><div className="flex justify-between items-center mb-4"><h3 className="text-xl font-bold text-slate-800 flex items-center gap-2"><i className="fas fa-qrcode text-emerald-600"></i> Rezervācijas QR kods</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600"><i className="fas fa-times text-2xl"></i></button></div><div className="bg-gray-50 rounded-xl p-4 mb-4"><div className="grid grid-cols-2 gap-2 text-sm"><div className="text-slate-500">Objekts:</div><div className="font-medium">{booking.facilityName}</div><div className="text-slate-500">Datums:</div><div className="font-medium">{booking.date}</div><div className="text-slate-500">Laiks:</div><div className="font-medium">{booking.slot}</div><div className="text-slate-500">Cena:</div><div className="font-medium text-emerald-600">{booking.price.toFixed(2)} €</div></div></div><div className="flex justify-center mb-4"><div ref={qrContainerRef} className="bg-white p-3 rounded-xl shadow-inner border min-h-[200px] min-w-[200px] flex items-center justify-center"></div></div><p className="text-xs text-center text-slate-500 mt-2"><i className="fas fa-shield-alt text-emerald-500 mr-1"></i> Uzrādiet šo QR kodu pie ieejas sporta centrā.</p><button onClick={onClose} className="mt-5 w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl font-semibold">Aizvērt</button></div></div>);
     };
     
     const ImportantInfoBlock = () => {
@@ -1550,7 +1584,21 @@ const EventCalendar = () => {
 };
       
 
-    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    try {
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
+      console.log('✅ App rendered successfully');
+    } catch (error) {
+      console.error('❌ Render error:', error);
+      document.getElementById('root').innerHTML = `
+        <div style="padding:40px;text-align:center;font-family:sans-serif;">
+          <h2 style="color:#dc2626;">⚠️ Renderēšanas kļūda</h2>
+          <p style="color:#6b7280;max-width:600px;margin:10px auto;">${error.message}</p>
+          <pre style="background:#f3f4f6;padding:10px;border-radius:8px;max-width:500px;margin:20px auto;text-align:left;font-size:12px;overflow:auto;">${error.stack}</pre>
+          <button onclick="location.reload()" style="background:#2563eb;color:white;padding:10px 30px;border:none;border-radius:8px;cursor:pointer;">Atsvaidzināt</button>
+        </div>
+      `;
+    }
   </script>
 </body>
 </html>
